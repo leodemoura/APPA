@@ -77,7 +77,7 @@
   Microsoft Research \\
   \email{leonardo@microsoft.com}
   \and
-  University of Nancy and INRIA\\
+  University of Lorraine and INRIA\\
   \email{pascal.fontaine@inria.fr}
 }
 
@@ -87,14 +87,102 @@
 
 \section{Introduction}
 
+Satisfiability Modulo Theories (SMT) solvers\footnote{We refer to~\cite{} for a
+  survey on SMT checking.} check the satisfiability of (mostly first-order)
+formulas written in a language containing interpreted predicates and functions.
+These interpreted symbols are defined by a first-order theory (e.g.\ equality,
+array operators {\tt read} and {\tt write},\dots) or by a structure (e.g.\ the
+integer numbers equipped with constants, addition, equality, and inequalities).
+Theories usually implemented within SMT solvers include the empty theory
+(a.k.a.\ the theory of uninterpreted symbols with equality), linear arithmetic
+on integers and/or reals, non-linear arithmetic on reals, bit-vectors and the
+theory of arrays.  A very small example of input for an SMT solver is
+\begin{displaymath}
+a \leq b \wedge b \leq a + x \wedge x = 0 \wedge
+ \big[ f(a) \neq f(b) \vee (q(a) \wedge \neg q(b + x)) \big]
+\end{displaymath}
+The above formula uses equality, linear arithmetic and uninterpreted symbols
+($q$ and $f$), within some Boolean combination.  The input language of SMT
+solvers is standardized in the SMT-LIB format, currently in its version
+2.0~\cite{}.  Figure~\ref{fig:smtlib} gives a translation of our example formula
+in this format.
+
+\begin{figure}
+{\footnotesize
+\begin{verbatim}
+(set-logic QF_UFLRA)
+(set-info :source | Example formula in SMT-LIB 2.0 |)
+(set-info :smt-lib-version 2.0)
+(declare-fun f (Real) Real)
+(declare-fun q (Real) Bool)
+(declare-fun a () Real)
+(declare-fun b () Real)
+(declare-fun x () Real)
+(assert (and (<= a b) (<= b (+ a x)) (= x 0)
+             (or (not (= (f a) (f b))) (and (q a) (not (q (+ b x)))))))
+(check-sat)
+(exit)
+\end{verbatim}
+}
+\caption{\label{fig:smtlib} An formula, written in SMT-LIB 2.0}
+\end{figure}
+
+Whereas SMT solvers were designed originally as decision procedures for
+decidable quantifier-free fragments, some SMT solvers nowadays tackle
+quantifiers, are decision procedures for some decidable quantified
+fragments~\cite{}, and refutational completeness for first-order logic (with
+equality but without further interpreted symbols) is an explicit goal~\cite{}.
+Also, some SMT solvers now deal with theories that are undecidable even in the
+quantifier-free case, for instance non-linear arithmetic on integers~\cite{}.
+
+In some aspects, and also in their implementation, SMT solvers can be seen as
+extensions of SAT solvers to more expressive languages.  They lift the
+efficiency of SAT solvers to richer logics: state-of-the-art SMT solvers are
+able to deal with very large formulas, containing thousands of atoms.  Very
+schematically, an SMT solvers abstract its input to propositional logic by replacing every atom by a fresh proposition, e.g., for the above example,
+\begin{displaymath}
+p_{a \leq b} \wedge p_{b \leq a + x} \wedge p_{x = 0} \wedge
+ \big[ \neg p_{f(a) = f(b)} \vee (p_{q(a)} \wedge \neg p_{q(b + x)}) \big].
+\end{displaymath}
+The underlying SAT solver is used to provide Boolean models for this
+abstraction, e.g.\
+\begin{displaymath}
+\{ p_{a \leq b}, p_{b \leq a + x}, p_{x = 0}, \neg p_{f(a) = f(b)} \}
+\end{displaymath}
+and the theory reasoner repeatedly refutes these models and refines the Boolean
+abstraction by adding new clauses (in this case $\neg p_{a \leq b} \vee \neg p_{b
+  \leq a + x} \vee \neg p_{x = 0} \vee p_{f(a) = f(b)}$) until either the theory
+reasoner agrees with the model found by the SAT solver, or the propositional
+abstraction is refined to an unsatisfiable formula.  As a consequence,
+propositional reasoning and theory reasoning are quite well distinguished.
+Naturally, the interaction between the theory reasoner and the SAT reasoning is
+in practice much more subtle than the above naive description, but even when
+advanced techniques (e.g.\ eager decision procedures\marginpar{Clark, correct me
+  on eager\dots} and theory propagation, see again~\cite{}) are used,
+propositional and theory reasoning are not very strongly mixed.
+
+% PF this should be improved
+The theory reasoner can be a decision procedure for one theory, e.g.\ congruence
+closure~\cite{} for uninterpreted symbols or simplex-based procedure~\cite{} for
+linear arithmetics, but it is most of the time a combination of decision
+procedures.  Combination frameworks~\cite{} build decision procedures for sets
+of literals mixing interpreted symbols from several decidable languages (like
+the aforementioned linear arithmetics and uninterpreted symbols) into one
+decision procedure for the union of languages.  Combining decision procedures is
+possible if the theories in the combination fulfil some properties.  For
+instance, theories used in SMT solvers are often \emph{stably-infinite} and
+disjoint (and this is the case both for linear arithmetic and uninterpreted
+symbols).  Combining theories often either involve guessing which shared terms
+are equal and which are not, or, equivalently, communicating disjunctions of equalities between decision procedures\marginpar{PF: I should improve this}.
+
+
+
 \Note{Pascal}
 % Briefly introduce your kind of proof production tool 
 % (e.g. Sat-solvers, SMT-solvers, First-order ATPs, 
 % Higher-order ATPs, Proof Assistants, ...).
 % Try to give an overview encompasing all your community. 
 % If possible, do not to restrict yourself only to the tool(s) you develop.
-Give overview of SMT problem, lazy approach to SMT (combination with SAT), common
-theories, theory combination, etc.
 Overview of proofs in SMT.  Proofs are basically resolution plus theory
 lemmas.  Mention that one challenge is to keep enough information to produce
 proofs without being too slow.
@@ -117,6 +205,17 @@ Mention Fx7 - ``Rocket fast proof checking'' paper
 % *proof-producing* version of your kind of tool that would be
 % particularly suitable for beginners to look at and modify?
 I fear CVC4 is too large to be good for beginners - how about veriT?
+
+PF: veriT is much smaller than CVC4, but not cleaner.  One can say:
+
+Unlike SAT solver, SMT solvers are usually quite large pieces of software:
+besides the propositional reasoning, they include decision procedures that can
+themselves be quite complex.  Furthermore, the components (i.e.\ the various
+decision procedures and the propositional reasoner) can be intricately mixed
+together.  Implementing a new SMT solver from scratch, or even getting into the
+code of an existing SMT solver, is a tedious task.  The OpenSMT solver is maybe
+the one that includes the best in its philosophy a less stiff learning curve for
+new developers.
 
 \section{Proof Systems and Proof Consumption}
 
@@ -226,8 +325,18 @@ warrant separate treatment.
 \section{The veriT SMT Solver}
 \Note{Pascal}
 \subsection{Proof Formats}
+
+The proof trace language of veriT is inspired from the SMT-LIB 2.0 language, but this similarity could be further improved.  It is particularly awkward for labeling repeating formulas, where the present solution is rather inspired from early CVC custom input language.  The language is quite coarse grained and rather falls into the ``proof trace'' category rather than full detailed proof.  Nonetheless, there has been some success to replay these traces and transform them into proof objects without heavy machinery.
+
+
 \subsection{Proof Production}
 \subsection{Proof Applications}
+
+PF this needs improvement
+
+Users targeted by our format are people who would like to replay those proofs into proof assistants, people working on interpolation (veriT does not provide a service for interpolation), and people wanting unsat cores (proofs are here overkill, but proofs are a way to get unsat cores without getting into the solver and design special techniques).
+
+Georg Hofferek has used our proofs for multiple interpolant computation in some synthesis problems (TODO more details/citation later).  In the Rodin plugin to SMT, veriT's proofs are used as a mean to quickly extract a core.  Proofs from veriT are used in Coq-SMT (TODO should check) for proof reconstruction of SMT proofs.
 
 \section{The Z3 SMT Solver}
 \Note{Leonardo}
