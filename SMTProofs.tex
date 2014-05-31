@@ -87,25 +87,27 @@
 
 \section{Introduction}
 
-Satisfiability Modulo Theories (SMT) solvers\footnote{We refer to~\cite{} for a
-  survey on SMT checking.} check the satisfiability of (mostly first-order)
-formulas written in a language containing interpreted predicates and functions.
-These interpreted symbols are defined by a first-order theory (e.g.\ equality,
-array operators {\tt read} and {\tt write},\dots) or by a structure (e.g.\ the
-integer numbers equipped with constants, addition, equality, and inequalities).
-Theories usually implemented within SMT solvers include the empty theory
-(a.k.a.\ the theory of uninterpreted symbols with equality), linear arithmetic
-on integers and/or reals, non-linear arithmetic on reals, bit-vectors and the
-theory of arrays.  A very small example of input for an SMT solver is
+Satisfiability Modulo Theories (SMT) solvers\footnote{We refer
+  to~\cite{Barrett14} for a survey on SMT.} check the satisfiability of (mostly
+first-order) formulas written in a language containing interpreted predicates
+and functions.  These interpreted symbols are defined by a first-order theory
+(e.g.\ equality, array operators {\tt read} and {\tt write},\dots) or by a
+structure (e.g.\ the integer numbers equipped with constants, addition,
+equality, and inequalities).  Theories usually implemented within SMT solvers
+include the empty theory (a.k.a.\ the theory of uninterpreted symbols with
+equality), linear arithmetic on integers and/or reals, non-linear arithmetic on
+reals, bit-vectors and the theory of arrays.  A very small example of input
+formula for an SMT solver is
 \begin{displaymath}
 a \leq b \wedge b \leq a + x \wedge x = 0 \wedge
- \big[ f(a) \neq f(b) \vee (q(a) \wedge \neg q(b + x)) \big]
+ \big[ f(a) \neq f(b) \vee (q(a) \wedge \neg q(b + x)) \big].
 \end{displaymath}
 The above formula uses equality, linear arithmetic and uninterpreted symbols
 ($q$ and $f$), within some Boolean combination.  The input language of SMT
 solvers is standardized in the SMT-LIB format, currently in its version
-2.0~\cite{}.  Figure~\ref{fig:smtlib} gives a translation of our example formula
-in this format.
+2.0~\cite{Barrett15}.  Figure~\ref{fig:smtlib} gives a translation of our example formula
+in this format.  The format currently does not provide any guideline for proof
+output.
 
 \begin{figure}
 {\footnotesize
@@ -129,17 +131,19 @@ in this format.
 
 Whereas SMT solvers were designed originally as decision procedures for
 decidable quantifier-free fragments, some SMT solvers nowadays tackle
-quantifiers, are decision procedures for some decidable quantified
-fragments~\cite{}, and refutational completeness for first-order logic (with
-equality but without further interpreted symbols) is an explicit goal~\cite{}.
+quantifiers, are decision procedures for some decidable quantified fragments
+(see e.g.~\cite{Ge1,Ge2}), and refutational completeness for first-order logic
+(with equality but without further interpreted symbols) is an explicit goal.
 Also, some SMT solvers now deal with theories that are undecidable even in the
-quantifier-free case, for instance non-linear arithmetic on integers~\cite{}.
+quantifier-free case, for instance non-linear arithmetic on integers~\cite{Borralleras1}.
 
 In some aspects, and also in their implementation, SMT solvers can be seen as
-extensions of SAT solvers to more expressive languages.  They lift the
-efficiency of SAT solvers to richer logics: state-of-the-art SMT solvers are
-able to deal with very large formulas, containing thousands of atoms.  Very
-schematically, an SMT solvers abstract its input to propositional logic by replacing every atom by a fresh proposition, e.g., for the above example,
+extensions of propositional satisfiability (SAT) solvers to more expressive
+languages.  They lift the efficiency of SAT solvers to richer logics:
+state-of-the-art SMT solvers are able to deal with very large formulas,
+containing thousands of atoms.  Very schematically, an SMT solver abstracts its
+input to propositional logic by replacing every atom with a fresh proposition,
+e.g., for the above example,
 \begin{displaymath}
 p_{a \leq b} \wedge p_{b \leq a + x} \wedge p_{x = 0} \wedge
  \big[ \neg p_{f(a) = f(b)} \vee (p_{q(a)} \wedge \neg p_{q(b + x)}) \big].
@@ -150,30 +154,44 @@ abstraction, e.g.\
 \{ p_{a \leq b}, p_{b \leq a + x}, p_{x = 0}, \neg p_{f(a) = f(b)} \}
 \end{displaymath}
 and the theory reasoner repeatedly refutes these models and refines the Boolean
-abstraction by adding new clauses (in this case $\neg p_{a \leq b} \vee \neg p_{b
-  \leq a + x} \vee \neg p_{x = 0} \vee p_{f(a) = f(b)}$) until either the theory
-reasoner agrees with the model found by the SAT solver, or the propositional
-abstraction is refined to an unsatisfiable formula.  As a consequence,
-propositional reasoning and theory reasoning are quite well distinguished.
-Naturally, the interaction between the theory reasoner and the SAT reasoning is
-in practice much more subtle than the above naive description, but even when
-advanced techniques (e.g.\ eager decision procedures\marginpar{Clark, correct me
-  on eager\dots} and theory propagation, see again~\cite{}) are used,
-propositional and theory reasoning are not very strongly mixed.
+abstraction by adding new clauses (in this case $\neg p_{a \leq b} \vee \neg
+p_{b \leq a + x} \vee \neg p_{x = 0} \vee p_{f(a) = f(b)}$) until either the
+theory reasoner agrees with the model found by the SAT solver, or the
+propositional abstraction is refined to an unsatisfiable formula.  As a
+consequence, propositional reasoning and theory reasoning are quite well
+distinguished.  Naturally, the interaction between the theory reasoner and the
+SAT reasoning is in practice much more subtle than the above naive description,
+but even when advanced techniques (e.g.\ eager decision procedures\marginpar{I
+  am always confused about the best term to use here, online, eager\dots Please
+  correct me} and theory propagation, see again~\cite{Barrett14}) are used,
+propositional and theory reasoning are not very strongly mixed.  SMT proofs will
+also feature an interleaving of SAT proofs and theory reasoning proofs.
 
 % PF this should be improved
-The theory reasoner can be a decision procedure for one theory, e.g.\ congruence
-closure~\cite{} for uninterpreted symbols or simplex-based procedure~\cite{} for
-linear arithmetics, but it is most of the time a combination of decision
-procedures.  Combination frameworks~\cite{} build decision procedures for sets
-of literals mixing interpreted symbols from several decidable languages (like
-the aforementioned linear arithmetics and uninterpreted symbols) into one
-decision procedure for the union of languages.  Combining decision procedures is
-possible if the theories in the combination fulfil some properties.  For
-instance, theories used in SMT solvers are often \emph{stably-infinite} and
-disjoint (and this is the case both for linear arithmetic and uninterpreted
-symbols).  Combining theories often either involve guessing which shared terms
-are equal and which are not, or, equivalently, communicating disjunctions of equalities between decision procedures\marginpar{PF: I should improve this}.
+The theory reasoner may be a decision procedure for one theory, e.g.\ congruence
+closure~\cite{Nelson2,Nieuwenhuis6} for uninterpreted symbols or a simplex-based
+procedure~\cite{Dutertre1} for linear arithmetics, but it is most of the time a
+combination of decision procedures.  Combination
+frameworks~\cite{Nelson3,Tinelli1} build decision procedures for sets of
+literals mixing interpreted symbols from several decidable languages (like the
+aforementioned linear arithmetic and uninterpreted symbols) into one decision
+procedure for the union of languages.  Combining decision procedures is possible
+if the theories in the combination fulfil some properties.  For instance,
+theories used in SMT solvers are often \emph{stably-infinite}\footnote{A theory
+  is stably-infinite if every satisfiable set of literals in the theory has an
+  infinite model.} and disjoint; this is notably the case for linear arithmetic
+on integers and reals, and for uninterpreted symbols.  Combining theories often
+either involve guessing which shared terms are equal and which are not, or,
+equivalently, communicating disjunctions of equalities between decision
+procedures.  Again, proofs for a combination of theories will be built from
+proofs related to the theories in the combinations; the component proofs will
+simply be combined using Boolean reasoning rules.
+
+Quantifier reasoning in SMT is still mostly done through
+instantiation~\cite{Moura9}.  Proofs involving quantifier reasoning are thus
+just ground proofs augmented with some instantiation steps.  Skolemization is
+however not trivial.  Giving a detailed proof of clausification and rewriting of
+the ground instances is also not an easy task.
 
 
 
