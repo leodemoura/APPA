@@ -5,49 +5,49 @@
 
 % Dissemination Plans and Important Dates:
 
-% - Your tutorial shall be acompanied by a paper, 
-% which will be published as a chapter of a book 
-% in the "Logic and Foundations of Mathematics" series 
-% by College Publications. 
+% - Your tutorial shall be acompanied by a paper,
+% which will be published as a chapter of a book
+% in the "Logic and Foundations of Mathematics" series
+% by College Publications.
 
-% - Please send us a good, though not necessarily final, 
-% version of your paper ** BEFORE 1st OF JUNE **. 
-% This will give us (and College Publications) sufficient time 
-% to produce printed copies of a preliminary version of the book, 
+% - Please send us a good, though not necessarily final,
+% version of your paper ** BEFORE 1st OF JUNE **.
+% This will give us (and College Publications) sufficient time
+% to produce printed copies of a preliminary version of the book,
 % to be distributed to registered participants.
 
 % - Afterwards there will be plenty of time to improve
-% the paper/chapter and incorporate feedback gained during the event. 
+% the paper/chapter and incorporate feedback gained during the event.
 
 
 % General remarks:
 
-% - The target audience (for both the tutorials and 
-% the accompanying papers) consists of Ph.D. students, 
+% - The target audience (for both the tutorials and
+% the accompanying papers) consists of Ph.D. students,
 % young post-docs and researchers from other logic-related communities.
 
-% - Avoid obscurity and clarify concepts that might be 
+% - Avoid obscurity and clarify concepts that might be
 % unknown to people from other communities.
 
-% - Strive for a self-contained paper, but be concise and 
+% - Strive for a self-contained paper, but be concise and
 % cite papers where readers may find more information.
 
-% - Do not hesitate to build bridges between your domain and 
-% other proof-related communities if you have some ideas to do so. 
+% - Do not hesitate to build bridges between your domain and
+% other proof-related communities if you have some ideas to do so.
 % These bridges should lead to interesting discussions during the workshop.
 
-% - You are encouraged to compare what is done in your community 
-% with what is done in other communities. 
+% - You are encouraged to compare what is done in your community
+% with what is done in other communities.
 % Try to understand and explain why your community does things differently.
 % This could lead to interesting discussions too.
 
-% - This template aims at ensuring a 
-% reasonably uniform style for all speakers. 
-% Nevertheless, feel free to deviate from the template if you need. 
+% - This template aims at ensuring a
+% reasonably uniform style for all speakers.
+% Nevertheless, feel free to deviate from the template if you need.
 % We are aware that not all questions are applicable to all speakers.
 
 
-% We hope the questions here will guide you 
+% We hope the questions here will guide you
 % in the production of your tutorial.
 
 % If anything is unclear, if you have any questions, contact us!
@@ -56,13 +56,13 @@
 
 \newcommand{\Note}[1]{\textcolor{blue}{[#1]}}
 
-\title{ Proofs in Satisfiability Modulo Theories } 
-% Please select a general title that reflects 
+\title{ Proofs in Satisfiability Modulo Theories }
+% Please select a general title that reflects
 % the community you are going to represent in the event.
 
 \author{
   Clark Barrett \inst{1}
-  \and 
+  \and
   Leonardo de Moura \inst{2}
   \and
   Pascal Fontaine \inst{3}
@@ -73,7 +73,7 @@
 \institute{
   New York University\\
   \email{barrett@cs.nyu.edu}
-  \and 
+  \and
   Microsoft Research \\
   \email{leonardo@microsoft.com}
   \and
@@ -196,23 +196,23 @@ the ground instances is also not an easy task.
 
 
 \Note{Pascal}
-% Briefly introduce your kind of proof production tool 
-% (e.g. Sat-solvers, SMT-solvers, First-order ATPs, 
+% Briefly introduce your kind of proof production tool
+% (e.g. Sat-solvers, SMT-solvers, First-order ATPs,
 % Higher-order ATPs, Proof Assistants, ...).
-% Try to give an overview encompasing all your community. 
+% Try to give an overview encompasing all your community.
 % If possible, do not to restrict yourself only to the tool(s) you develop.
 Overview of proofs in SMT.  Proofs are basically resolution plus theory
 lemmas.  Mention that one challenge is to keep enough information to produce
 proofs without being too slow.
 
 \Note{Clark}
-% What are the tools that pioneered proof production in your area? 
-% What are the tools that currently produce proofs? 
-% How widespread is the feature of proof production 
-% among tools in your area? 
-% How was the historical evolution of the 
-% proof production feature in your area? 
-% If the tools in your area cannot produce proofs easily, explain why, 
+% What are the tools that pioneered proof production in your area?
+% What are the tools that currently produce proofs?
+% How widespread is the feature of proof production
+% among tools in your area?
+% How was the historical evolution of the
+% proof production feature in your area?
+% If the tools in your area cannot produce proofs easily, explain why,
 % and describe the current trends to alleviate this problem.
 The Cooperating Validity Checker (CVC)~\cite{SBD02} was the first SMT solver to
 tackle the problem of proof-production.  CVC was built by Aaron Stump and Clark
@@ -286,7 +286,7 @@ aid of the proof-checker.
 %% MathSAT has support for proofs, but unclear what the format is (brief mention
 %% in MathSAT5 paper)
 
-% Is there an open-source and minimalistic 
+% Is there an open-source and minimalistic
 % *proof-producing* version of your kind of tool that would be
 % particularly suitable for beginners to look at and modify?
 I fear CVC4 is too large to be good for beginners - how about veriT?
@@ -308,18 +308,18 @@ stiff learning curve for new developers.
 What are the common proof techniques across SMT?  Mention resolution,
 equality/congruence reasoning.  Otherwise, theory-specific reasoning varies a lot.
 
-% Please list the (most common) proof systems 
-% (e.g. resolution, superposition, tableaux, 
-% sequent calculus, natural deduction, ...) 
+% Please list the (most common) proof systems
+% (e.g. resolution, superposition, tableaux,
+% sequent calculus, natural deduction, ...)
 % underlying state-of-the-art tools of your kind.
 
-% Please show the inference rules of 
-% (some of) these proof systems explicitly. 
+% Please show the inference rules of
+% (some of) these proof systems explicitly.
 % Use, for example, proof.sty or bussproofs.sty.
 
-% Why are these proof systems particularly useful for 
-% your automated deduction tools? 
-% Which features make them suitable? 
+% Why are these proof systems particularly useful for
+% your automated deduction tools?
+% Which features make them suitable?
 % What is not so convenient in them?
 
 % What are the trends w.r.t. proof systems for your kind of tool?
@@ -327,19 +327,19 @@ equality/congruence reasoning.  Otherwise, theory-specific reasoning varies a lo
 %\section{Proof Consumption}
 Discuss how SMT solvers depend on reolution proofs from SAT.
 
-% Does your kind of tool consume proofs from another kind of tool? 
-% (e.g. SMT-solvers using (proofs from) sat-solvers; 
-% higher-order ATPs and proof assistants using (proofs from) 
+% Does your kind of tool consume proofs from another kind of tool?
+% (e.g. SMT-solvers using (proofs from) sat-solvers;
+% higher-order ATPs and proof assistants using (proofs from)
 % first-order ATPs; ...)
 
-% If so, is there anything that could be improved in the proofs 
+% If so, is there anything that could be improved in the proofs
 % that are generated by this other kind of tool?
 
-% If your tool consumes proofs from other tools, 
+% If your tool consumes proofs from other tools,
 % is it only a proof-checker or is
-% it a wider tool also used to build proofs by its own? 
-% If it is a wider tool, do you also provide a lighter version of 
-% your tool that is dedicated to proof-checking? 
+% it a wider tool also used to build proofs by its own?
+% If it is a wider tool, do you also provide a lighter version of
+% your tool that is dedicated to proof-checking?
 % If not, would it be desirable?
 
 % What are the trends?
@@ -361,43 +361,43 @@ How do the proof search techniques in SMT affect proof production?  For
 example, rewriting, CNF conversion, preprocessing are challenging for proofs.
 Some processing is typically disabled when producing proofs.
 
-% Which algorithms are used to search for a proof/refutation? 
+% Which algorithms are used to search for a proof/refutation?
 % Is the procedure able to find (counter-)models as well?
 
 % Which criteria (e.g. speed, sizes (or other measures) of proofs/models)
 % are used to evaluate whether a procedure is better than another?
 
-% What are the "bottlenecks" that prevent current procedures 
+% What are the "bottlenecks" that prevent current procedures
 % from solving more problems?
 
-% Is there any mismatch between the abstract proof systems and 
-% the implemented proof search procedures? 
-% If so, how big is the gap between proof theory 
-% and automated deduction in your field? 
-% Would it be possible/desirable to develop proof systems 
+% Is there any mismatch between the abstract proof systems and
+% the implemented proof search procedures?
+% If so, how big is the gap between proof theory
+% and automated deduction in your field?
+% Would it be possible/desirable to develop proof systems
 % that are closer to the actual implementations?
 
-% Are there any particular decision procedures or 
+% Are there any particular decision procedures or
 % proof search procedures that are not well-covered by proof theory yet?
 
-% Do the proof search procedures guarantee that an optimal proof 
+% Do the proof search procedures guarantee that an optimal proof
 % (for some sense of "optimal") will be found, if a proof exists?
 
-% Are there proof search optimization techniques 
-% (e.g. resolution refinements, subsumption, 
-% in-processing) that succesfully improve theorem proving efficiency, 
-% but may be harmful for the generation of "good" (e.g. short, detailed, easy to check, ...) proofs? 
+% Are there proof search optimization techniques
+% (e.g. resolution refinements, subsumption,
+% in-processing) that succesfully improve theorem proving efficiency,
+% but may be harmful for the generation of "good" (e.g. short, detailed, easy to check, ...) proofs?
 % Which techniques are harmful? Which are harmless?
 
-% If the generated proofs are not optimal, 
-% what kinds of redundancies may they contain? 
-% Are there methods to improve the proofs in a post-processing phase? 
-% Would it be possible/profitable to modify the existing 
-% proof search procedures so that they generate better proofs, 
+% If the generated proofs are not optimal,
+% what kinds of redundancies may they contain?
+% Are there methods to improve the proofs in a post-processing phase?
+% Would it be possible/profitable to modify the existing
+% proof search procedures so that they generate better proofs,
 % that do not need to be post-processed afterwards?
 
-% If the generated proofs are optimal but depend on the 
-% kind of proof-checker that is used to verify the produced proofs, 
+% If the generated proofs are optimal but depend on the
+% kind of proof-checker that is used to verify the produced proofs,
 % explicit the dependency you rely on to generate optimal proofs.
 
 % What are the trends w.r.t. proof search methods for your kind of tool?
@@ -433,10 +433,94 @@ Users targeted by our format are people who would like to replay those proofs in
 Georg Hofferek has used our proofs for multiple interpolant computation in some synthesis problems (TODO more details/citation later).  In the Rodin plugin to SMT, veriT's proofs are used as a mean to quickly extract a core.  Proofs from veriT are used in Coq-SMT (TODO should check) for proof reconstruction of SMT proofs.
 
 \section{The Z3 SMT Solver}
-\Note{Leonardo}
-\subsection{Proof Formats}
-\subsection{Proof Production}
+
+Z3 is a Satisfiability Modulo Theories (SMT) solver developed at
+Microsoft Research.  Z3 source code is available online, and it is
+freely for non-commercial purposes.  Z3 is used in various software
+analysis and test-case generation projects at Microsoft Research and
+elsewhere.  Proof generation is based on two simple ideas: (1) a
+notion of implicit quotation to avoid introducing auxiliary variables,
+it simplifies the creation of proof objects considerably; (2) natural
+deduction style proofs to facilitate modular proof re-construction.
+
+\subsection{Proof Format and Production}
+
+In Z3, proof objects are represented as terms. So a proof-tree is just a term
+where each inference rule is represented by a function symbol.
+For example, consider the proof-rule $mp(p, q, \varphi)$, where $p$ is a proof for
+$\psi \rightarrow \varphi$ and $q$ is a proof for $\psi$. Each proof-rule has
+\emph{consequent}, the consequent of $mp(p, q, \varphi)$ is $\varphi$.
+
+A basic underlying principle for composing and building proofs in Z3 has been to support a modular
+architecture that works well with theory solvers that receive literal assignments from other solvers and
+produce contradictions or new literal assignments. The theory solvers should be able to produce independent
+and opaque explanations for their decisions.
+Conceptually, each solver acts upon a set of hypotheses and produce a consequent. The basic proof-rules
+that support such an architecture can be summarized as: \emph{hypothesis} , that allow introducing an
+assumption, \emph{lemma}, that eliminates hypotheses, and \emph{unit resolution} that handles basic propagation.
+We say that a proof-term is \emph{closed} when every path that ends with a hypothesis contains an application
+of rule lemma. If a proof-term is not closed, it is open.
+
+The main propositional inference engine in Z3 is based on a DPLL(T) architecture.
+The DPLL(T) proof search method lends itself naturally to producing resolution style proofs.
+Systems, such as zChaff, and a version of MiniSAT, produce proof logs based on logging the
+unit propagation steps as well as the conflict resolution steps. The resulting log suffices to produce a
+propositional resolution proof.
+
+The approach taken in Z3 bypasses logging, and instead builds proof
+objects during conflict resolution.  With each clause we attach a
+proof. Clauses that were produced as part of the input have proofs
+that were produced from the previous steps. This approach does not
+require logging resolution steps for every unit-propagation, but
+delays the analysis of which unit propagation steps are useful until
+conflict resolution. The approach also does not produce a resolution
+proof directly. It produces a natural deduction style proof with
+hypotheses.
+
+The theory of equality can be captured by axioms for reflexivity,
+symmetry, transitivity, and substitutivity of equality. In Z3,
+these axioms are inference rules, and these inference rules apply
+for any binary relation that is reflexive,
+symmetric, transitive, and/or reflexive-monotone.
+
+n the DPLL(T) architecture, decision procedures for a theory $T$
+identify sets of asserted $T$-inconsistent literals. Dually, the
+disjunction of the negated literals are $T$-tautologies. Consequently,
+proof terms created by theories can be summarized using a single form,
+here called \emph{theory lemmas}. Some theory lemmas are annotated
+with hints to help proof checkers and reconstruction. For example, the
+theory of linear arithmetic produces theory lemmas based on Farka's
+lemma. For example, suppose $p$ is a proof for $x > 0$, and $q$ is a
+proof for $2x + 1 < 0$, then $\mbox{\emph{farkas}}(1, p, -1/2, q, \neg(x > 0) \vee \neg(2x + 1 < 0))$
+is a theory lemma where the coefficients $1$ and $-1/2$ are hints.
+
+The Z3 simplifier applies standard simplification rules for the
+supported theories. For example, terms using the arithmetical operations,
+both for integer, real, and bit-vector arithmetic, are normalized into sums of monomials.
+A single proof rule called \emph{rewrite} is used to record the simplification steps.
+For example, $\mbox{\emph{rewrite}}(x + x = 2 x)$ is a proof for $x + x = 2x$.
+
+Notice that Z3 does not axiomatize the legal rewrites.
+Instead, to check the rewrite steps, one must rely on a
+proof checker to be able to apply similar inferences for the set of built-in theories.
+
 \subsection{Proof Applications}
+
+The two main applications for Z3 proof certificates are: proof
+reconstruction in interactive proof assistant such as
+Isabelle~\cite{IsabelleZ3}; an interpolation generation~\cite{iZ3}.
+
+In Isabelle/HOL, Z3 proofs are reconstructed in a completely different
+system based on a secure proof kernel. Proof reconstruction is a quite
+involved process, because proof rules such as \emph{theory lemmas} require
+several steps of reasoning in Isabelle/HOL.
+
+The interpolation prover iZ3~\cite{iZ3} is implemented on top of Z3.  It uses Z3
+proof as guide for construction of a proof by a secondary, less
+efficient, interpolating prover. It translates Z3 proofs into
+a proof calculus that does admit feasible interpolation, with
+``gaps'', or lemmas, that must be discharged by the secondary prover.
+
 
 \section{The Lean Prover}
 \Note{Leonardo}
@@ -446,42 +530,42 @@ Georg Hofferek has used our proofs for multiple interpolant computation in some 
 
 %\section{Proof Formats}
 
-% Briefly describe the actual text formats used to output proofs. 
+% Briefly describe the actual text formats used to output proofs.
 
-% Are there standard formats in your community? If not, why not? 
+% Are there standard formats in your community? If not, why not?
 
-% If possible and if not too large, please copy-paste the 
+% If possible and if not too large, please copy-paste the
 % grammar of the proof format(s) here.
 
-% Please copy-paste a small but interesting example proof here. 
-% Try to select an example that shows (most of) the peculiarities 
-% of your proof format. 
+% Please copy-paste a small but interesting example proof here.
+% Try to select an example that shows (most of) the peculiarities
+% of your proof format.
 % Use a verbatim environment (like the listings package, for example).
 
-% What are the guiding principles involved in the design of the format? 
-% Is it intended to be human-readable? easy to parse? 
-% easy/efficient to verify? as small as possible? 
+% What are the guiding principles involved in the design of the format?
+% Is it intended to be human-readable? easy to parse?
+% easy/efficient to verify? as small as possible?
 % In case of automated proofs, is it intended to recover
 % intuition of the proofs?
 
-% If a proof expressed in your proof format is intended 
-% to be checked by another tool, what is the distribution 
+% If a proof expressed in your proof format is intended
+% to be checked by another tool, what is the distribution
 % between the information that is stored in the
-% proof and the information that has to be reconstructed by 
+% proof and the information that has to be reconstructed by
 % the tool verifying the proof.
 
-% Is there any relation between the proof format and 
+% Is there any relation between the proof format and
 % the format used for input problems?
 
-% How fine- or coarse-grained are the proofs in this format? 
-% Are you and your community satisfied with this level of detail? 
-% Are there applications that might benefit from 
-% a greater level of detail? 
+% How fine- or coarse-grained are the proofs in this format?
+% Are you and your community satisfied with this level of detail?
+% Are there applications that might benefit from
+% a greater level of detail?
 
-% If you provide several proof formats, 
+% If you provide several proof formats,
 % explain the kinds of users that are targeted by these formats.
 
-% Are there generic parsers available for this format? 
+% Are there generic parsers available for this format?
 % In which programming languages?
 
 % What are the trends?
@@ -490,31 +574,31 @@ Georg Hofferek has used our proofs for multiple interpolant computation in some 
 %\section{Proof Production}
 
 % What is the ``price'' (e.g. in terms of efficiency or memory overhead)
-% paid to generate proofs? How much slower does the tool become? 
+% paid to generate proofs? How much slower does the tool become?
 % How much more memory does it consume?
 
-% In case of automated proofs, how different is the proof-producing 
+% In case of automated proofs, how different is the proof-producing
 % proof search algorithm from the proof search algorithm that simply
 % answers "yes" or "no"?
 
-% Is it usually possible to switch proof production 
+% Is it usually possible to switch proof production
 % on and off in your kind of tool?
 
-% How is the code for proof production? 
-% Does it require substantial intervention in the usual architecture 
+% How is the code for proof production?
+% Does it require substantial intervention in the usual architecture
 % and data structures of a non-proof-producing tool of the same kind?
-% Could you show some code snippets here, in order to 
-% illustrate proof production? 
-% If there is a significant gap between the proof system and 
-% the actual data structures used by the tool, 
-% could you illustrate (perhaps with a simple example) 
+% Could you show some code snippets here, in order to
+% illustrate proof production?
+% If there is a significant gap between the proof system and
+% the actual data structures used by the tool,
+% could you illustrate (perhaps with a simple example)
 % how a proof can be obtained from these data structures?
 
-% Does your kind of tool keep the (partial) proof in memory during 
-% the search and writes it to a file only when the search finishes? 
-% Or does it write partial results (lemmas) eagerly to file? 
-% In this latter case, are there techniques to cope with 
-% excessive generation and writing of lemmas that may not be 
+% Does your kind of tool keep the (partial) proof in memory during
+% the search and writes it to a file only when the search finishes?
+% Or does it write partial results (lemmas) eagerly to file?
+% In this latter case, are there techniques to cope with
+% excessive generation and writing of lemmas that may not be
 % relevant to prove the theorem?
 
 % What are the trends?
@@ -522,19 +606,19 @@ Georg Hofferek has used our proofs for multiple interpolant computation in some 
 
 %\section{Proof Applications}
 
-% Which application domains have used your kind of tool? 
-% Have there been any ground-breaking achievements? 
-% Among these application domains, 
-% which are particularly interested in the generated proofs? 
-% How do they use the proofs? Do they use proofs just for 
-% certifying the correctness of the provided answer? 
-% Or do they extract other kinds of information 
+% Which application domains have used your kind of tool?
+% Have there been any ground-breaking achievements?
+% Among these application domains,
+% which are particularly interested in the generated proofs?
+% How do they use the proofs? Do they use proofs just for
+% certifying the correctness of the provided answer?
+% Or do they extract other kinds of information
 % (e.g. unsat cores, interpolants, witnesses, programs, ...) from proofs?
 
-% In the context of these applications, when should 
-% a proof P of a certain theorem be considered better than 
-% a proof Q of the same theorem? 
-% For example, in case of double negation transformations, 
+% In the context of these applications, when should
+% a proof P of a certain theorem be considered better than
+% a proof Q of the same theorem?
+% For example, in case of double negation transformations,
 % why is it better to get intuitionistic proofs from classical proofs?
 
 % What are the trends?
