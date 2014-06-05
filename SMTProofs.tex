@@ -98,10 +98,10 @@ include the empty theory (a.k.a.\ the theory of uninterpreted symbols with
 equality), linear arithmetic on integers and/or reals, non-linear arithmetic on
 reals, bit-vectors and the theory of arrays.  A very small example of input
 formula for an SMT solver is
-\begin{displaymath}
+\begin{equation}\label{eq:example}
 a \leq b \wedge b \leq a + x \wedge x = 0 \wedge
  \big[ f(a) \neq f(b) \vee (q(a) \wedge \neg q(b + x)) \big].
-\end{displaymath}
+\end{equation}
 The above formula uses equality, linear arithmetic and uninterpreted symbols
 ($q$ and $f$), within some Boolean combination.  The input language of SMT
 solvers is standardized in the SMT-LIB format, currently in its version
@@ -417,16 +417,86 @@ warrant separate treatment.
 \subsection{Proof Applications}
 
 \section{The veriT SMT Solver}
-\Note{Pascal}
+
+The veriT SMT solver is developed jointly at Loria, Nancy (France) and UFRN,
+Natal (Brazil).  It is open-source, under the permissive BSD licence.  veriT is
+first a testing plate-form for techniques developed around SMT, but it is
+sufficienctly stable to be used by third parties.  Proofs in veriT are mainly
+resolution proofs interleaved with theory reasoning lemmas.
+
 \subsection{Proof Formats}
 
-The proof trace language of veriT is inspired from the SMT-LIB 2.0 language, but this similarity could be further improved.  It is particularly awkward for labeling repeating formulas, where the present solution is rather inspired from early CVC custom input language.  The language is quite coarse grained and rather falls into the ``proof trace'' category rather than full detailed proof.  Nonetheless, there has been some success to replay these traces and transform them into proof objects without heavy machinery.
+The proof trace language of veriT is inspired from the SMT-LIB 2.0 standard.  A
+sample proof for our running example~ref{eq:example} is given in
+Figure~\ref{fig:proofverit}.  The language is quite coarse grained and rather
+falls into the ``proof trace'' category rather than full detailed proof.  It
+provides however a full account of the resolution proof, and equality reasoning
+is broken down into applications of the congruence and transitivity instances of
+the axiom schemas for equality.  Symmetry of equality is silently used
+uniformly.  Special proof rules are assigned to theory lemmas (from arithmetic),
+but veriT does not break down arithmetic reasoning to instances of
+e.g., Presburger axioms.  The example here does not feature quantifier
+reasoning; proofs with quantifiers use quantifier instantiation rules.
 
+Skolemization, 
+
+\begin{figure}
+{\scriptsize
+\begin{verbatim}
+(set .c1 (input :conclusion ((and (<= a b) (<= b (+ a x)) (= x 0)
+                               (or (not (= (f b) (f a))) (and (q a) (not (q (+ b x)))))))))
+(set .c2 (and :clauses (.c1) :conclusion ((<= a b))))
+(set .c3 (and :clauses (.c1) :conclusion ((<= b (+ a x)))))
+(set .c4 (and :clauses (.c1) :conclusion ((= x 0))))
+(set .c5 (and :clauses (.c1) :conclusion
+           ((or (not (= (f b) (f a))) (and (q a) (not (q (+ b x))))))))
+(set .c6 (and_pos :conclusion ((not (and (q a) (not (q (+ b x))))) (q a))))
+(set .c7 (and_pos :conclusion ((not (and (q a) (not (q (+ b x))))) (not (q (+ b x))))))
+(set .c8 (or :clauses (.c5) :conclusion
+           ((not (= (f b) (f a))) (and (q a) (not (q (+ b x)))))))
+(set .c9 (eq_congruent :conclusion ((not (= a b)) (= (f b) (f a)))))
+(set .c10 (la_disequality :conclusion ((or (= a b) (not (<= a b)) (not (<= b a))))))
+(set .c11 (or :clauses (.c10) :conclusion ((= a b) (not (<= a b)) (not (<= b a)))))
+(set .c12 (resolution :clauses (.c11 .c2) :conclusion ((= a b) (not (<= b a)))))
+(set .c13 (la_generic :conclusion ((not (<= b (+ a x))) (<= b a) (not (= x 0)))))
+(set .c14 (resolution :clauses (.c13 .c3 .c4) :conclusion ((<= b a))))
+(set .c15 (resolution :clauses (.c12 .c14) :conclusion ((= a b))))
+(set .c16 (resolution :clauses (.c9 .c15) :conclusion ((= (f b) (f a)))))
+(set .c17 (resolution :clauses (.c8 .c16) :conclusion ((and (q a) (not (q (+ b x)))))))
+(set .c18 (resolution :clauses (.c6 .c17) :conclusion ((q a))))
+(set .c19 (resolution :clauses (.c7 .c17) :conclusion ((not (q (+ b x))))))
+(set .c20 (eq_congruent_pred :conclusion ((not (= a (+ b x))) (not (q a)) (q (+ b x)))))
+(set .c21 (resolution :clauses (.c20 .c18 .c19) :conclusion ((not (= a (+ b x))))))
+(set .c22 (la_disequality :conclusion ((or (= a (+ b x)) (not (<= a (+ b x))) (not (<= (+ b x) a))))))
+(set .c23 (or :clauses (.c22) :conclusion ((= a (+ b x)) (not (<= a (+ b x))) (not (<= (+ b x) a)))))
+(set .c24 (resolution :clauses (.c23 .c21) :conclusion ((not (<= a (+ b x))) (not (<= (+ b x) a)))))
+(set .c25 (eq_congruent_pred :conclusion
+            ((not (= a b)) (not (= (+ a x) (+ b x))) (<= a (+ b x)) (not (<= b (+ a x))))))
+(set .c26 (eq_congruent :conclusion ((not (= a b)) (not (= x x)) (= (+ a x) (+ b x)))))
+(set .c27 (eq_reflexive :conclusion ((= x x))))
+(set .c28 (resolution :clauses (.c26 .c27) :conclusion ((not (= a b)) (= (+ a x) (+ b x)))))
+(set .c29 (resolution :clauses (.c25 .c28) :conclusion ((not (= a b)) (<= a (+ b x)) (not (<= b (+ a x))))))
+(set .c30 (resolution :clauses (.c29 .c3 .c15) :conclusion ((<= a (+ b x)))))
+(set .c31 (resolution :clauses (.c24 .c30) :conclusion ((not (<= (+ b x) a)))))
+(set .c32 (la_generic :conclusion ((<= (+ b x) a) (not (= a b)) (not (= x 0)))))
+(set .c33 (resolution :clauses (.c32 .c4 .c15 .c31) :conclusion ()))
+\end{verbatim}
+}
+\caption{\label{fig:proofverit} The proof output by veriT for example Formula \ref{eq:example}.  The output has been slightly edited to cut and indent long lines.}
+\end{figure}
+
+In the future, the proof format of veriT will be further improved to even better
+stick to the SMT-LIB standard.  In particular, when using shared terms, veriT
+uses a notation to label repeating formulas which is inspired from early CVC custom input language, but which does not fit well with .
 
 \subsection{Proof Production}
+
+
+
 \subsection{Proof Applications}
 
 PF this needs improvement
+
 
 Users targeted by our format are people who would like to replay those proofs into proof assistants, people working on interpolation (veriT does not provide a service for interpolation), and people wanting unsat cores (proofs are here overkill, but proofs are a way to get unsat cores without getting into the solver and design special techniques).
 
@@ -628,8 +698,36 @@ a proof calculus that does admit feasible interpolation, with
 
 % Summarize the most important points of the previous sections.
 
+Building a proof-producing SMT solver is mostly easy: the underlying SAT solver
+mainly produces a resolution proof, and, as long as the theories in the
+combination also produce proof, the combination can also be see as a resolution
+proof.  There remains however many small and larger challenges related to SMT
+proofs.  First, it is necessary to collect and store all the necessary
+information to produce the final proof; this is mostly a technical problem, but,
+if this is done in memory, this can be the bottleneck of the proof search.
+Second, SMT often relies on many preprocessing techniques, some being necessary
+for the soundness of tool, some being useful for efficiency.  The attitude
+followed by most SMT developer is to provide some kind of high level proof of
+for essential preprocessing.  Non-essential preprocessing is turned off, with an
+important consequence on efficiency.  Finally may also be non-trivial to provide
+good proofs for some preprocessing techniques, e.g.\ for Skolemization, or
+symmetry breaking.
+
+SMT solvers may use external tools as specialized reasoners for some theories.
+Producing a proof in SMT may thus, in some cases, require proofs from those
+external reasoners.
+
+An important challenge for the SMT community is to provide a proof format which
+is sufficiently flexible to accomodate all needs, sufficiently compact to be
+practical, and sufficiently elegant (with is a very subjective quality) to be
+accepted by most.  Some formats have been proposed~\cite{}, but none is
+sufficiently mature to be accepted by the whole community.
 
 % Thank you very much for your contribution!
+
+\medskip
+\emph{Acknowledgements}: Pascal Fontaine would like to thank David D\'{e}harbe,
+who jointly designed veriT with him.
 
 
 \bibliographystyle{plain}
