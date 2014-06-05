@@ -699,29 +699,28 @@ a proof calculus that does admit feasible interpolation, with
 % Summarize the most important points of the previous sections.
 
 Building a proof-producing SMT solver is mostly easy: the underlying SAT solver
-mainly produces a resolution proof, and, as long as the theories in the
-combination also produce proof, the combination can also be see as a resolution
-proof.  There remains however many small and larger challenges related to SMT
+generate resolution proofs, and, as long as the theories in the combination also
+produce certificates, these can be combined easily again simply using
+resolution.  There are however many small and larger challenges related to SMT
 proofs.  First, it is necessary to collect and store all the necessary
 information to produce the final proof; this is mostly a technical problem, but,
 if this is done in memory, this can be the bottleneck of the proof search.
 Second, SMT often relies on many preprocessing techniques, some being necessary
 for the soundness of tool, some being useful for efficiency.  The attitude
-followed by most SMT developer is to provide some kind of high level proof of
-for essential preprocessing.  Non-essential preprocessing is turned off, with an
-important consequence on efficiency.  Finally may also be non-trivial to provide
-good proofs for some preprocessing techniques, e.g.\ for Skolemization, or
-symmetry breaking.
-
-SMT solvers may use external tools as specialized reasoners for some theories.
-Producing a proof in SMT may thus, in some cases, require proofs from those
-external reasoners.
+followed by most SMT developer is to provide some kind of high level trace for
+essential preprocessing.  Non-essential preprocessing is turned off, with an
+important consequence on efficiency.  Finally it may also be non-trivial to
+generate good proofs for some preprocessing techniques, e.g.\ for Skolemization,
+or symmetry breaking.  SMT solvers may use external tools as specialized
+reasoners for some theories.  Producing a proof in SMT may thus, in some cases,
+require certificates from those external reasoners.
 
 An important challenge for the SMT community is to provide a proof format which
 is sufficiently flexible to accomodate all needs, sufficiently compact to be
-practical, and sufficiently elegant (with is a very subjective quality) to be
-accepted by most.  Some formats have been proposed~\cite{}, but none is
-sufficiently mature to be accepted by the whole community.
+practical, and sufficiently elegant (which is very subjective) to be accepted by
+most.  Some formats have been proposed~\cite{}\marginpar{Cite Aaron, Besson,
+  z3}, but it seems it is still too early for a consensus on how to represent
+SMT proofs.
 
 % Thank you very much for your contribution!
 
