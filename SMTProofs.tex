@@ -214,10 +214,77 @@ proofs without being too slow.
 % proof production feature in your area? 
 % If the tools in your area cannot produce proofs easily, explain why, 
 % and describe the current trends to alleviate this problem.
-History of proofs in SMT.  CVC tools, Z3, veriT
-MathSAT has support for proofs, but unclear what the format is (brief mention
-in MathSAT5 paper)
-Mention Fx7 - ``Rocket fast proof checking'' paper
+The Cooperating Validity Checker (CVC)~\cite{SBD02} was the first SMT solver to
+tackle the problem of proof-production.  CVC was built by Aaron Stump and Clark
+Barrett, advised by David Dill, at Stanford University.  CVC was designed to
+improve upon and replace the Stanford Validity Checker (SVC)~\cite{BDL96} for
+use in the group's verification applications and also to serve as a research
+platform for studying SMT ideas and algorithms.    CVC
+uses a proof format based on the Edinburgh Logical Framework (LF)~\cite{HHP93}
+and its proofs can be checked using the flea proof-checker~\cite{SBD02b,SD02}, which was
+developed concurrently with CVC.
+
+The motivation for producing proofs was primarliy that it would provide a means
+of independently certifying a correct result,
+so that users would not have to rely on the correctness of a large and
+frequently-changing code base.  Another motivation was the hope that
+proof-production could aid in finding and correcting nasty bugs in CVC.
+In retrospect, however, the most important and lasting contribution of CVC's
+proof infrastructure was that it enabled an efficient integration of a SAT
+solver for Boolean reasoning.  Initial attempts to use a SAT solver within
+CVC suffered from poor performance because the theory-reasoning part of CVC
+was being used as a black box, simply flagging a particular branch of the SAT
+search as unsatisfiable.  Without additional information (i.e. a conflict
+clause specifying a small reason for the unsatisfiability), the SAT solver could
+not benefit from clause learning or non-chronlogical backjumping and frequently
+failed to terminate, even on relatively easy problems.  During a conversation
+with Cormaq Flanagan, the idea of using the proof infrastructure to compute
+conflict clauses emerged, and this was the key to finally making the
+integration with SAT efficient (see~\cite{BDS02-CAV02} for more details).  The
+technique was implemented in CVC, as well as in Flanagan's solver called
+Verifun~\cite{FJO+03} and this laid the groundwork for the so-called DPLL(T)
+architecture~\cite{NieOT-JACM-06} used in nearly every modern SMT solver.
+
+The next important development in proof-producing SMT solvers was the
+early exploration of using proofs to communicate with skeptical proof
+assistants.  The first work in this area~\cite{MBG06} was a translator designed
+to import proofs from CVC Lite~\cite{BB04} (the successor to CVC) into HOL
+Lite~\cite{H96}, a proof assistant for higher-order logic with a small trusted
+core set of rules.  The goals of this work were two-fold: to provide access to
+efficient decision procedures within HOL Lite and to enable the use of HOL Lite
+as a proof-checker for CVC Lite.  Shortly thereafter~\cite{FMM+06,HCF+07}, a similar effort was
+made to integrate the haRVey SMT solver~\cite{DR03} with the Isabelle/HOL prove
+assistant~\cite{NPW02}. These early efforts demonstrated the feasibility of such
+integrations.
+
+In 2008, an effort was made to leverage this work to certify that the
+benchmarks in the SMT-LIB library were correctly labeled (benchmarks are
+labeled with a \emph{status} that can be ``sat'', ``unsat'', or ``unknown'',
+indicating the expected result when solving the benchmark).  The certification
+was done using CVC3~\cite{BT07} (the successor to CVC Lite) and
+HOL Lite~\cite{GB08}.  Many of the benchmarks in the library were certified and
+additionally, a bug in the library was found as two benchmarks that had been
+labeled satisfiable were certified as unsatisfiable.
+The same work reports briefly on an anecdote that further validates the value
+of proof-production.  A latent bug in CVC3 was revealed during the 2007
+SMT-COMP competition.  Using HOL Light as a proof-checker, the cause of the bug
+was quickly detected as a faulty proof rule.  The bug in the proof rule had
+persisted for years and would have been very difficult to detect without the
+aid of the proof-checker.
+
+
+%% Mention Fx7 - ``Rocket fast proof checking'' paper (TACAS 2008)
+%% Proofs and Refutations (Z3) (IWIL 2008)
+%% Towards an SMT Proof format SMT 2008, LFML 2008, SMT 2009
+%% veriT 2009
+%% PxTP 2011
+
+%% preliminary report
+
+
+%% History of proofs in SMT.  CVC tools, Z3, veriT
+%% MathSAT has support for proofs, but unclear what the format is (brief mention
+%% in MathSAT5 paper)
 
 % Is there an open-source and minimalistic 
 % *proof-producing* version of your kind of tool that would be
@@ -281,6 +348,15 @@ Discuss how SMT solvers depend on reolution proofs from SAT.
 \section{Proof Search}
 
 \Note{Clark}
+SMT solvers typically include a module for preprocessing formulas to simplify
+them before running the main algorithm to search for a satisfying assignment.
+This module may perform anything from simple rewrites (such as rewriting $x=y$
+to $y=x$) to complex global simplifications that significantly change the
+structure of the formula.
+
+Preprocessing poses a challenge for proof-production.  Each transformation done
+by the preprocessor must be reflected in the produced proof.
+
 How do the proof search techniques in SMT affect proof production?  For
 example, rewriting, CNF conversion, preprocessing are challenging for proofs.
 Some processing is typically disabled when producing proofs.
