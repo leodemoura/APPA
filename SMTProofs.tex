@@ -460,7 +460,7 @@ but veriT does not break down arithmetic reasoning to instances of
 e.g., Presburger axioms.  The example here does not feature quantifier
 reasoning; proofs with quantifiers use quantifier instantiation rules.
 
-Skolemization, 
+Skolemization,
 
 \begin{figure}
 {\scriptsize
@@ -583,6 +583,8 @@ lemma. For example, suppose $p$ is a proof for $x > 0$, and $q$ is a
 proof for $2x + 1 < 0$, then $\mbox{\emph{farkas}}(1, p, -1/2, q, \neg(x > 0) \vee \neg(2x + 1 < 0))$
 is a theory lemma where the coefficients $1$ and $-1/2$ are hints.
 
+
+
 The Z3 simplifier applies standard simplification rules for the
 supported theories. For example, terms using the arithmetical operations,
 both for integer, real, and bit-vector arithmetic, are normalized into sums of monomials.
@@ -592,11 +594,17 @@ For example, $\mbox{\emph{rewrite}}(x + x = 2 x)$ is a proof for $x + x = 2x$.
 Notice that Z3 does not axiomatize the legal rewrites.
 Instead, to check the rewrite steps, one must rely on a
 proof checker to be able to apply similar inferences for the set of built-in theories.
+Thus, like VeriT, Z3 proofs are coarse grained and rather falls into the “proof trace”
+category rather than full detailed proof.
+
+Since Z3 proofs are terms, they can be traversed using the Z3 API.
+Proofs can also be outputed in SMT-LIB 2.0 standard. A sample proof
+for our running example~\ref{refeq:example} is given in
+Figure~\ref{fig:proofz3}.
 
 \begin{figure}
 {\scriptsize
 \begin{verbatim}
-(proof
 (let (($x82 (q b)) (?x49 (* (- 1.0) b)) (?x50 (+ a ?x49))
       ($x51 (<= ?x50 0.0)) (?x35 (f b)) (?x34 (f a))
       ($x36 (= ?x34 ?x35)) ($x37 (not $x36))
@@ -631,7 +639,7 @@ proof checker to be able to apply similar inferences for the set of built-in the
                               (unit-resolution @x103 (symm @x115 $x36) $x97) $x38)))
 (let ((@x118 (unit-resolution (def-axiom (or $x96 $x85))
                               (unit-resolution @x103 (symm @x115 $x36) $x97) $x85)))
-(unit-resolution @x118 (mp @x119 (symm @x121 (= $x38 $x82)) $x82) false)))))))))))))))))))
+(unit-resolution @x118 (mp @x119 (symm @x121 (= $x38 $x82)) $x82) false)))))))))))))))))
 \end{verbatim}
 }
 \caption{\label{fig:proofz3} The proof output by Z3 for example Formula \ref{eq:example}. The output has been slightly edited to cut and indent long lines.}
