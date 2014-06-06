@@ -127,7 +127,7 @@ presents the above example formula in this format.
 (exit)
 \end{verbatim}
 }
-\caption{\label{fig:smtlib} Formula~\ref{eq:example}, presented in te SMT-LIB 2.0 language}
+\caption{\label{fig:smtlib} Formula~\ref{eq:example}, presented in the SMT-LIB 2.0 language}
 \end{figure}
 
 SMT solvers were originally designed as decision procedures for
@@ -278,7 +278,7 @@ proof-production as well~\cite{dMB08}, though its use of a single rule for
 theory lemmas meant that checking or reconstructing Z3 proofs requires the
 external checker to have some automated reasoning capability (see
 Section~\ref{sec:z3}).  Finally, development on veriT, the successor to haRVey,
-began in earnest~\ref{BdOD+09}, with proof-production as a primary goal (see Section~\ref{sec:veriT}).
+began in earnest~\cite{BdOD+09}, with proof-production as a primary goal (see Section~\ref{sec:veriT}).
 
 Another important community development around this time was an attempt to
 converge on a standard proof format for SMT-LIB.  We discuss this effort in
@@ -315,18 +315,58 @@ stiff learning curve for new developers.
 
 \Note{Pascal}
 
-SAT solving, refer to other article
+Since the core of SMT solvers is mainly a SAT solver adapted to suit the needs
+in an SMT context, the core of the proof is also a SAT proof.  We will refer to
+the other article by Marijn Heule, in the same volume, for more details on SAT
+solving.  Let us just remind that SAT solvers work on a conjunctive normal form,
+and build a (partial) assignment using Boolean propagation and decisions.  If
+building this assignment fails (i.e.\ it falsifies a clause) because of some
+decisions, the algorithm analyses the conflict, learns a new clause that will
+serve as a guide to avoid repeating doing the same wrong decisions again, and
+backtracks.  Only this learning phase is important for proofs, and it is easy to
+generate a resolution trace corresponding to this conflict analysis and
+producing the learned clause.  Proof producing SMT solver rely on the underlying
+SAT solver to produce this resolution proof.
 
-Propagation, Conflict, Learning, Backtracking.  Only learning is important for proofs, and it is easy to generate resolution proofs.
+In the context of SAT solving, a conflict is always due to the assignment
+falsifying a clause.  Another kind of conflict can occur in SMT: assume the SAT
+solver assigned $p_{a=b}$ (i.e.\ the propositional abstraction of the atom
+$a=b$) to true, and later $p_{f(a) = f(b)}$ to false, there may be no clause
+conflicting such an assignment, but it is obviously inconsistent.  The theory
+reasoner embedded in the SMT solver checks assignments for theory consistency.
+In the present case, it would notify a conflict to the underlying SAT engine,
+and would produce the clause $\neg p_{a=b} \vee p_{f(a) = f(b)}$.  This theory
+clause refines the propositional abstraction with knowledge from the theory.
+This knowledge can then be used like any other clause.  Producing SMT proofs
+thus only depend on the theory reasoners ability to provide detailed proofs for
+theory clauses.
 
-Congruence closure.  Equality graph.
+The satisifiability of sets of ground literals with equalities and uninterpreted
+symbols can be checked using congruence closure~\cite{Nelson2,Nieuwenhuis6}.
+Efficient algorithms are non trivial, but the idea of congruence algorithm is
+simple.  It builds a partition of all relevant terms, according to the
+equalities, and check for inconsistencies with negated equalities.  For
+instance, if the relevant terms are $a$, $b$, $f(a)$ and $f(b)$, the initial
+partition would be $\big\{\{a\}, \{b\}, \{f(a)\}, \{f(b)\}\big\}$.  If equality
+$a=b$ is asserted, the algorithm would merge the classes for $a$ and $b$,
+because of this equality, and would also merge the classes for $f(a)$ and $f(b)$
+because it merged the arguments of $f$ and because equality is a congruence.  If
+the algorithm is aware that $f(a) \neq f(b)$ should hold, it detects a conflict
+as soon as $f(a)$ and $f(b)$ are put in a some congruence class.  Producing
+proofs for congruence closure is thus only a matter of keeping a trace of which
+(two) terms are merged and why (because of congruence, or an equality).  This
+information can be stored in a graph, where terms are nodes, and edges represent
+asserted equalities or congruences.  If the equality of two terms can be deduced
+by transitivity using asserted equalities and congruences, then there is a
+(unique) path between the two terms in the graph.  To prove a congruence
+(e.g.\ $g(a,c) = g(b,d)$), it suffices to first prove equality of the
+corresponding arguments ($a=b$, $c=d$) and use an instance of the congruence
+axiom schema, e.g.\ $(a=b \wedge c=d) \Rightarrow g(a,c) = g(b,d)$.
 
 linear arithmetic: simplex.  Farkas.  Integers.
 
 in the above, and other decision procedure (arrays, bitvectors, non-linear arithmetic), the techniques may vary greatly
 
-What are the common proof techniques across SMT?  Mention resolution,
-equality/congruence reasoning.  Otherwise, theory-specific reasoning varies a lot.
 
 % Please list the (most common) proof systems
 % (e.g. resolution, superposition, tableaux,
@@ -345,7 +385,6 @@ equality/congruence reasoning.  Otherwise, theory-specific reasoning varies a lo
 % What are the trends w.r.t. proof systems for your kind of tool?
 
 %\section{Proof Consumption}
-Discuss how SMT solvers depend on reolution proofs from SAT.
 
 % Does your kind of tool consume proofs from another kind of tool?
 % (e.g. SMT-solvers using (proofs from) sat-solvers;
