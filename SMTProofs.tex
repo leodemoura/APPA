@@ -664,10 +664,92 @@ a proof calculus that does admit feasible interpolation, with
 
 
 \section{The Lean Prover}
-\Note{Leonardo}
-\subsection{Proof Formats}
-\subsection{Proof Production}
-\subsection{Proof Applications}
+Lean is a new open source theorem prover being developed by Leonardo
+de Moura and Soonho Kong~\cite{lean}. Lean is not a standard SMT
+solver, it can be used as an automatic prover like SMT solvers, but it
+can also be used as a proof assistant. Lean kernel is based on
+dependent type theory, and is implemented in two layers. The first
+layer contains the type checker, and APIs for creating and
+manipulating the terms, declarations and the environment. The first
+layer has several configuration options. For example, developers may
+instantiate the kernel with or without an impredicative Prop sort.
+They may also select whether Prop is proof irrelevant or not. The
+first layer consists of 5k lines of C++ code. The second layer
+provides additional components such as inductive families (500
+additional lines of code). When the kernel is instantiated, one
+selects which of these components should be used. The current
+components are already sufficient for producing an implementation of
+the Calculus of Inductive Constructions (CIC). The main difference is
+that Lean does not have universe cumulativity, it instead provides
+universe polymorphism. The Lean CIC-based kernel is treated as the standard
+kernel. Another design goal is to support the new Homotopy Type System
+(HTS) proposed by Vladimir Voevodsky. HTS is going to be implemented
+as another kernel instantiation.
+
+Lean is meant to be used as a standalone system and as a software
+library. It provides an extensive API and can be easily embedded in
+other systems. SMT solvers can use the Lean API to create proof terms
+that can be independently checked. The API can also be used to export
+Lean proofs to other systems based on CIC (e.g., Coq and Matita).
+
+Having a more expressive language for encoding proofs provides several
+advantages. First, we can easily add new ``proof rules'' without
+modifying the proof checker (i.e., type checker). Proof rules such as
+\emph{mp} and \emph{monotonicity} used in Z3 are just theorems in Lean.
+When a new decision procedure (or any other form of
+automation) is implemented, the developer must first prove the theorems
+that are needed to justify the results produced by the automatic
+procedure. For example, suppose a developer is implementing a procedure for
+Presburger arithmetic, she will probably use a theorem such as:
+
+{\scriptsize
+\begin{verbatim}
+theorem add_comm (n m:nat) : n + m = m + n
+:=
+  induction_on m
+    (trans (add_zero_right _) (symm (add_zero_left _)))
+    (take k IH,
+      calc
+        n + succ k = succ (n+k) : add_succ_right _ _
+          ... = succ (k + n) : {IH}
+          ... = succ k + n : symm (add_succ_left _ _))
+\end{verbatim}
+}
+
+Pre-processing steps such as skolemization can be supported in
+a similar way. Whenever a preprocessing procedure applies a
+skolemization step, it uses the following theorem to justify it.
+
+{\scriptsize
+\begin{verbatim}
+theorem skolem_th {A : Type} {B : A -> Type} {P : forall x : A, B x -> Bool} :
+        (forall x, exists y, P x y) = (exists f, (forall x, P x (f x)))
+:= iff_intro
+      (assume H : (forall x, exists y, P x y), @axiom_of_choice _ _ P H)
+      (assume H : (exists f, (forall x, P x (f x))),
+             take x, obtain (fw : forall x, B x) (Hw : forall x, P x (fw x)), from H,
+                  exists_intro (fw x) (Hw x))
+\end{verbatim}
+}
+
+Most SMT solvers make extensive use of preprocessing steps, and as
+pointed out before, it is not easy to be proof producing for every
+single rewriting step that can occur in the solver.
+In Lean, this issue is addressed by providing a generic rewriting
+engine that can use any previously proved theorems. The engine
+accepts two kinds of theorems: congruence theorems and (conditional)
+equations. For example, the following two theorems can be used to
+distribute universal quantifiers over disjuctions when the left
+(right) hand side does not reference the bound variable.
+
+{\scriptsize
+\begin{verbatim}
+theorem forall_or_distributel {A : Type} (p : Bool) (q : A -> Bool)
+           : (forall x, q x \/ p) = ((forall x, q x) \/ p)
+theorem forall_or_distributer {A : Type} (p : Bool) (q : A -> Bool)
+           : (forall x, p \/ q x) = (p ∨ forall x, q x)
+\end{verbatim}
+}
 
 %\section{Proof Formats}
 
