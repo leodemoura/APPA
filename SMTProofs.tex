@@ -95,7 +95,7 @@ and functions.  These interpreted symbols are defined either by first-order axio
 structure (e.g.\ the integer numbers equipped with constants, addition,
 equality, and inequalities).  Theories frequently implemented within SMT solvers
 include the empty theory (a.k.a.\ the theory of uninterpreted symbols with
-equality), linear arithmetic on integers and/or reals, bit-vectors and the
+equality), linear arithmetic on integers and/or reals, bit-vectors, and the
 theory of arrays.  A very small example of an input formula for an SMT solver is
 \begin{equation}\label{eq:example}
 a \leq b \wedge b \leq a + x \wedge x = 0 \wedge
@@ -103,7 +103,7 @@ a \leq b \wedge b \leq a + x \wedge x = 0 \wedge
 \end{equation}
 The above formula uses atoms over a language of equality, linear arithmetic,
 and uninterpreted symbols ($q$ and $f$) within some Boolean combination.  The
-SMT-LIB language standard (currently in version 2.0~\cite{Barrett15}) is a
+SMT-LIB language (currently in version 2.0~\cite{Barrett15}) is a
 standard concrete input language for SMT solvers.  Figure~\ref{fig:smtlib}
 presents the above example formula in this format.
 %CB: I will address this later
@@ -160,45 +160,46 @@ p_{b \leq a + x} \vee \neg p_{x = 0} \vee p_{f(a) = f(b)}$) until either the
 theory reasoner agrees with the model found by the SAT solver, or the
 propositional abstraction is refined to an unsatisfiable formula.  As a
 consequence, propositional reasoning and theory reasoning are quite well
-distinguished.  Naturally, the interaction between the theory reasoner and the
+distinguished.  Naturally, the interaction between the theory reasoning and the
 SAT reasoning is in practice much more subtle than the above naive description,
 but even when advanced techniques (e.g.\ online decision procedures and theory propagation, see again~\cite{Barrett14}) are used,
-propositional and theory reasoning are not very strongly mixed.  SMT proofs will
-also feature an interleaving of SAT proofs and theory reasoning proofs.  The SAT
-proofs are mainly some form of resolution proofs, whereas the theory reasoning
-results in lemmas, i.e.\ new clauses, that are handled by the SAT solver just
-like any other clause in the input.
+propositional and theory reasoning are not very strongly mixed.  SMT proofs are
+thus also an interleaving of SAT proofs and theory reasoning proofs.  The SAT
+proofs are typically based on some form of resolution, whereas the theory reasoning
+is used to justify theory lemmas, i.e.\ the new clauses added from the theory
+reasoner.
 
 % PF this should be improved
 The theory reasoner may be a decision procedure for one theory, e.g.\ congruence
 closure~\cite{Nelson2,Nieuwenhuis6} for uninterpreted symbols or a simplex-based
-procedure~\cite{Dutertre1} for linear arithmetics, but it is most of the time a
-combination of decision procedures.  Combination
+procedure~\cite{Dutertre1} for linear arithmetic, but it is often a
+combination of decision procedures for multiple theories.  Combination
 frameworks~\cite{Nelson3,Tinelli1} build decision procedures for sets of
 literals mixing interpreted symbols from several decidable languages (like the
 aforementioned linear arithmetic and uninterpreted symbols) into one decision
-procedure for the union of languages.  Combining decision procedures is possible
-if the theories in the combination fulfill some properties.  For instance,
-theories used in SMT solvers are often \emph{stably-infinite}\footnote{A theory
+procedure for the union of languages.  Combining the decision procedures is possible
+when the theories in the combination satisfy certain properties.  A sufficient
+condition, for instance, is that the theories be \emph{stably-infinite}\footnote{A theory
   is stably-infinite if every satisfiable set of literals in the theory has an
   infinite model.} and disjoint; this is notably the case for linear arithmetic
-on integers and reals, and for uninterpreted symbols.  Combining theories often
-either involve guessing which shared terms are equal and which are not, or,
+on integers and reals, and for uninterpreted symbols.  Combining theories further
+involves guessing which shared terms are equal and which are not, or,
 equivalently, communicating disjunctions of equalities between decision
-procedures.  Again, proofs for a combination of theories will be built from
-proofs related to the theories in the combinations; the component proofs will
-simply be combined using Boolean reasoning rules.
+procedures.  These guesses show up as additional literals in theory lemmas.
+Proofs for combinations of theories are thus built from proofs in the
+theories in the combination, and the component proofs are simply combined using
+Boolean reasoning rules.
 
 Quantifier reasoning in SMT is still mostly done through
 instantiation~\cite{Moura9}.  Proofs involving quantifier reasoning are thus
-just ground proofs augmented with some instantiation steps.  Skolemization is
-however not trivial.  While it is not absolutely clear how to output a good
+just ground proofs augmented with some instantiation steps.  Skolemization is,
+however, not trivial.  While it is not absolutely clear how to output a good
 proof for some preprocessing techniques (e.g.\ Skolemization, and to a lesser
 extend clausification) some other preprocessing techniques pose another problem.
 Rewriting is pervasive in SMT solving, and it is not easy to be proof producing
 for every single rewriting step that can occur in the solver.  More generally,
 the main challenge of proof production is to collect and keep enough information
-to produce proofs, without hurting efficiently too much.
+to produce proofs, without hurting efficiency too much.
 
 %\Note{Clark}
 % What are the tools that pioneered proof production in your area?
