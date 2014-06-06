@@ -593,6 +593,50 @@ Notice that Z3 does not axiomatize the legal rewrites.
 Instead, to check the rewrite steps, one must rely on a
 proof checker to be able to apply similar inferences for the set of built-in theories.
 
+\begin{figure}
+{\scriptsize
+\begin{verbatim}
+(proof
+(let (($x82 (q b)) (?x49 (* (- 1.0) b)) (?x50 (+ a ?x49))
+      ($x51 (<= ?x50 0.0)) (?x35 (f b)) (?x34 (f a))
+      ($x36 (= ?x34 ?x35)) ($x37 (not $x36))
+      ($x43 (or $x37 (and (q a) (not (q (+ b x))))))
+      ($x33 (= x 0.0)) (?x57 (+ a ?x49 x)) ($x56 (>= ?x57 0.0))
+      ($x44 (and (<= a b) (<= b (+ a x)) $x33 $x43))
+      (@x60 (monotonicity (rewrite (= (<= a b) $x51))
+                          (rewrite (= (<= b (+ a x)) $x56))
+                          (= $x44 (and $x51 $x56 $x33 $x43))))
+      (@x61 (mp (asserted $x44) @x60 (and $x51 $x56 $x33 $x43)))
+      (@x62 (and-elim @x61 $x51)) ($x71 (>= ?x50 0.0)))
+(let ((@x70 (trans (monotonicity (and-elim @x61 $x33) (= ?x57 (+ a ?x49 0.0)))
+                   (rewrite (= (+ a ?x49 0.0) ?x50)) (= ?x57 ?x50))))
+(let ((@x74 (mp (and-elim @x61 $x56) (monotonicity @x70 (= $x56 $x71)) $x71)))
+(let ((@x121 (monotonicity (symm ((_ th-lemma arith eq-propagate 1 1) @x74 @x62 (= a b)) (= b a))
+                           (= $x82 (q a)))))
+(let (($x38 (q a)) ($x96 (or (not $x38) $x82)) ($x97 (not $x96)))
+(let ((@x115 (monotonicity (symm ((_ th-lemma arith eq-propagate 1 1) @x74 @x62 (= a b)) (= b a))
+                           (= ?x35 ?x34))))
+(let (($x100 (or $x37 $x97)))
+(let ((@x102 (monotonicity (rewrite (= (and $x38 (not $x82)) $x97))
+                           (= (or $x37 (and $x38 (not $x82))) $x100))))
+(let (($x85 (not $x82)))
+(let (($x88 (and $x38 $x85)))
+(let (($x91 (or $x37 $x88)))
+(let ((@x81 (trans (monotonicity (and-elim @x61 $x33) (= (+ b x) (+ b 0.0)))
+                   (rewrite (= (+ b 0.0) b)) (= (+ b x) b))))
+(let ((@x87 (monotonicity (monotonicity @x81 (= (q (+ b x)) $x82)) (= (not (q (+ b x))) $x85))))
+(let ((@x93 (monotonicity (monotonicity @x87 (= (and $x38 (not (q (+ b x)))) $x88)) (= $x43 $x91))))
+(let ((@x103 (mp (mp (and-elim @x61 $x43) @x93 $x91) @x102 $x100)))
+(let ((@x119 (unit-resolution (def-axiom (or $x96 $x38))
+                              (unit-resolution @x103 (symm @x115 $x36) $x97) $x38)))
+(let ((@x118 (unit-resolution (def-axiom (or $x96 $x85))
+                              (unit-resolution @x103 (symm @x115 $x36) $x97) $x85)))
+(unit-resolution @x118 (mp @x119 (symm @x121 (= $x38 $x82)) $x82) false)))))))))))))))))))
+\end{verbatim}
+}
+\caption{\label{fig:proofz3} The proof output by Z3 for example Formula \ref{eq:example}. The output has been slightly edited to cut and indent long lines.}
+\end{figure}
+
 \subsection{Proof Applications}
 
 The two main applications for Z3 proof certificates are: proof
