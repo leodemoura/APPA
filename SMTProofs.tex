@@ -381,7 +381,7 @@ advanced techniques for Skolemization that are even less amenable to proofs.
 % What are the trends?
 
 
-\subsection{Challenges}
+\subsection*{Challenges}
 
 %\Note{Clark}
 SMT solvers typically include a module for preprocessing formulas to simplify
@@ -524,7 +524,7 @@ unsatisfiable cores.  In this paper, our focus is on solvers that can produce
 actual proof objects with the goal of having them be checked or translated by
 an external tool.
 
-\subsection{Proof Formats for SMT}
+\subsection*{Proof Formats for SMT}
 \label{sec:format}
 
 \Note{Clark}
@@ -561,7 +561,7 @@ sufficienctly stable to be used by third parties.  Proofs in veriT are mainly
 resolution proofs interleaved with theory reasoning lemmas.
 
 The proof trace language of veriT is inspired from the SMT-LIB 2.0 standard.  A
-sample proof for our running example~ref{eq:example} is given in
+sample proof for our running example~\ref{eq:example} is given in
 Figure~\ref{fig:proofverit}.  The language is quite coarse grained and rather
 falls into the ``proof trace'' category rather than full detailed proofs.  It
 provides however a full account of the resolution proof, and equality reasoning
@@ -616,6 +616,14 @@ proofs with quantifiers use quantifier instantiation rules.
 }
 \caption{\label{fig:proofverit} The proof output by veriT for example Formula \ref{eq:example}.  The output has been slightly edited to cut and indent long lines.}
 \end{figure}
+
+The first line gives the input.  Clauses {\tt c2} to {c8} explain clausification
+of the input.  Equality reasoning produced clauses labeled with {\tt
+  eq\_congruent(\_pred)} and {\tt eq\_reflexive}, whereas the linear arithmetic
+module produced all the clauses labeled {\tt la\_disequality} and {\tt
+  la\_generic}.  The rest of the proof is mainly resolution applications, and ends with the empty clause.
+
+% PF I should maybe say more...
 
 In the future, the proof format of veriT will be further improved to even better
 stick to the SMT-LIB standard.  In particular, when using shared terms (for
@@ -702,7 +710,7 @@ category rather than full detailed proof.
 
 Since Z3 proofs are terms, they can be traversed using the Z3 API.
 Proofs can also be outputed in SMT-LIB 2.0 standard. A sample proof
-for our running example~\ref{refeq:example} is given in
+for our running example~\ref{eq:example} is given in
 Figure~\ref{fig:proofz3}.
 
 \begin{figure}
@@ -938,8 +946,6 @@ theorem forall_or_distributer {A : Type} (p : Bool) (q : A -> Bool)
 \label{sec:app}
 
 \subsection{veriT}
-
-PF this needs improvement
 
 Users targeted by our format are people who would like to replay those proofs into proof assistants, people working on interpolation (veriT does not provide a service for interpolation), and people wanting unsat cores (proofs are here overkill, but proofs are a way to get unsat cores without getting into the solver and design special techniques).
 
