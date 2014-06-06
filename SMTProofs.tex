@@ -88,26 +88,27 @@
 \section{Introduction}
 
 Satisfiability Modulo Theories (SMT) solvers\footnote{We refer
-  to~\cite{Barrett14} for a survey on SMT.} check the satisfiability of (mostly
-first-order) formulas written in a language containing interpreted predicates
-and functions.  These interpreted symbols are defined by a first-order theory
-(e.g.\ equality, array operators {\tt read} and {\tt write},\dots) or by a
+  to~\cite{Barrett14} for a survey on SMT.} check the satisfiability of
+first-order formulas written in a language containing interpreted predicates
+and functions.  These interpreted symbols are defined either by first-order axioms
+(e.g.\ the axioms of equality, or array axioms for operators {\tt read} and {\tt write},\dots) or by a
 structure (e.g.\ the integer numbers equipped with constants, addition,
-equality, and inequalities).  Theories usually implemented within SMT solvers
+equality, and inequalities).  Theories frequently implemented within SMT solvers
 include the empty theory (a.k.a.\ the theory of uninterpreted symbols with
-equality), linear arithmetic on integers and/or reals, non-linear arithmetic on
-reals, bit-vectors and the theory of arrays.  A very small example of input
-formula for an SMT solver is
+equality), linear arithmetic on integers and/or reals, bit-vectors and the
+theory of arrays.  A very small example of an input formula for an SMT solver is
 \begin{equation}\label{eq:example}
 a \leq b \wedge b \leq a + x \wedge x = 0 \wedge
  \big[ f(a) \neq f(b) \vee (q(a) \wedge \neg q(b + x)) \big].
 \end{equation}
-The above formula uses equality, linear arithmetic and uninterpreted symbols
-($q$ and $f$), within some Boolean combination.  The input language of SMT
-solvers is standardized in the SMT-LIB format, currently in its version
-2.0~\cite{Barrett15}.  Figure~\ref{fig:smtlib} gives a translation of our example formula
-in this format.  The format currently does not provide any guideline for proof
-output.
+The above formula uses atoms over a language of equality, linear arithmetic,
+and uninterpreted symbols ($q$ and $f$) within some Boolean combination.  The
+SMT-LIB language standard (currently in version 2.0~\cite{Barrett15}) is a
+standard concrete input language for SMT solvers.  Figure~\ref{fig:smtlib}
+presents the above example formula in this format.
+%CB: I will address this later
+%The format currently does
+%not provide any guidelines for proof output.
 
 \begin{figure}
 {\footnotesize
@@ -126,13 +127,13 @@ output.
 (exit)
 \end{verbatim}
 }
-\caption{\label{fig:smtlib} An formula, written in SMT-LIB 2.0}
+\caption{\label{fig:smtlib} Formula~\ref{eq:example}, presented in te SMT-LIB 2.0 language}
 \end{figure}
 
-Whereas SMT solvers were designed originally as decision procedures for
-decidable quantifier-free fragments, some SMT solvers nowadays tackle
-quantifiers, are decision procedures for some decidable quantified fragments
-(see e.g.~\cite{Ge1,Ge2}), and refutational completeness for first-order logic
+SMT solvers were originally designed as decision procedures for
+decidable quantifier-free fragments, but many SMT solvers additionally tackle
+quantifiers, and some contain decision procedures for certain decidable quantified fragments
+(see e.g.~\cite{Ge1,Ge2}).  For these solvers, refutational completeness for first-order logic
 (with equality but without further interpreted symbols) is an explicit goal.
 Also, some SMT solvers now deal with theories that are undecidable even in the
 quantifier-free case, for instance non-linear arithmetic on integers~\cite{Borralleras1}.
