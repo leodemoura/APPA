@@ -165,7 +165,10 @@ but even when advanced techniques (e.g.\ eager decision procedures\marginpar{I
   am always confused about the best term to use here, online, eager\dots Please
   correct me} and theory propagation, see again~\cite{Barrett14}) are used,
 propositional and theory reasoning are not very strongly mixed.  SMT proofs will
-also feature an interleaving of SAT proofs and theory reasoning proofs.
+also feature an interleaving of SAT proofs and theory reasoning proofs.  The SAT
+proofs are mainly some form of resolution proofs, whereas the theory reasoning
+results in lemmas, i.e.\ new clauses, that are handled by the SAT solver just
+like any other clause in the input.
 
 % PF this should be improved
 The theory reasoner may be a decision procedure for one theory, e.g.\ congruence
@@ -190,20 +193,13 @@ simply be combined using Boolean reasoning rules.
 Quantifier reasoning in SMT is still mostly done through
 instantiation~\cite{Moura9}.  Proofs involving quantifier reasoning are thus
 just ground proofs augmented with some instantiation steps.  Skolemization is
-however not trivial.  Giving a detailed proof of clausification and rewriting of
-the ground instances is also not an easy task.
-
-
-
-\Note{Pascal}
-% Briefly introduce your kind of proof production tool
-% (e.g. Sat-solvers, SMT-solvers, First-order ATPs,
-% Higher-order ATPs, Proof Assistants, ...).
-% Try to give an overview encompasing all your community.
-% If possible, do not to restrict yourself only to the tool(s) you develop.
-Overview of proofs in SMT.  Proofs are basically resolution plus theory
-lemmas.  Mention that one challenge is to keep enough information to produce
-proofs without being too slow.
+however not trivial.  While it is not absolutely clear how to output a good
+proof for some preprocessing techniques (e.g.\ Skolemization, and to a lesser
+extend clausification) some other preprocessing techniques pose another problem.
+Rewriting is pervasive in SMT solving, and it is not easy to be proof producing
+for every single rewriting step that can occur in the solver.  More generally,
+the main challenge of proof production is to collect and keep enough information
+to produce proofs, without hurting efficiently too much.
 
 \Note{Clark}
 % What are the tools that pioneered proof production in your area?
@@ -294,6 +290,7 @@ I fear CVC4 is too large to be good for beginners - how about veriT?
 PF: veriT is much smaller than CVC4, but not cleaner.  One can say:
 
 Unlike SAT solvers, SMT solvers are usually large pieces of software: besides
+\marginpar{PF: introduction is mostly done but this does not really fit well}
 propositional reasoning engines, they include decision procedures that can
 themselves be quite complex.  Furthermore, the code of the components (i.e.\ the
 various decision procedures and the propositional reasoner) can be intricately
@@ -305,6 +302,17 @@ stiff learning curve for new developers.
 \section{Proof Systems and Proof Consumption}
 
 \Note{Pascal}
+
+SAT solving, refer to other article
+
+Propagation, Conflict, Learning, Backtracking.  Only learning is important for proofs, and it is easy to generate resolution proofs.
+
+Congruence closure.  Equality graph.
+
+linear arithmetic: simplex.  Farkas.  Integers.
+
+in the above, and other decision procedure (arrays, bitvectors, non-linear arithmetic), the techniques may vary greatly
+
 What are the common proof techniques across SMT?  Mention resolution,
 equality/congruence reasoning.  Otherwise, theory-specific reasoning varies a lot.
 
@@ -424,7 +432,7 @@ first a testing plate-form for techniques developed around SMT, but it is
 sufficienctly stable to be used by third parties.  Proofs in veriT are mainly
 resolution proofs interleaved with theory reasoning lemmas.
 
-\subsection{Proof Formats}
+\subsection{Proof Format and Production}
 
 The proof trace language of veriT is inspired from the SMT-LIB 2.0 standard.  A
 sample proof for our running example~ref{eq:example} is given in
@@ -488,10 +496,6 @@ Skolemization,
 In the future, the proof format of veriT will be further improved to even better
 stick to the SMT-LIB standard.  In particular, when using shared terms, veriT
 uses a notation to label repeating formulas which is inspired from early CVC custom input language, but which does not fit well with .
-
-\subsection{Proof Production}
-
-
 
 \subsection{Proof Applications}
 
@@ -700,23 +704,26 @@ a proof calculus that does admit feasible interpolation, with
 
 Building a proof-producing SMT solver is mostly easy: the underlying SAT solver
 generate resolution proofs, and, as long as the theories in the combination also
-produce certificates, these can be combined easily again simply using
+produce certificates, these can be combined easily simply using again
 resolution.  There are however many small and larger challenges related to SMT
 proofs.  First, it is necessary to collect and store all the necessary
 information to produce the final proof; this is mostly a technical problem, but,
-if this is done in memory, this can be the bottleneck of the proof search.
-Second, SMT often relies on many preprocessing techniques, some being necessary
-for the soundness of tool, some being useful for efficiency.  The attitude
-followed by most SMT developer is to provide some kind of high level trace for
-essential preprocessing.  Non-essential preprocessing is turned off, with an
-important consequence on efficiency.  Finally it may also be non-trivial to
-generate good proofs for some preprocessing techniques, e.g.\ for Skolemization,
-or symmetry breaking.  SMT solvers may use external tools as specialized
-reasoners for some theories.  Producing a proof in SMT may thus, in some cases,
-require certificates from those external reasoners.
+this can be the bottleneck of the proof search.  Indeed this may involve an
+enormous amount of bookkeeping work, and, if using main memory, it may quickly
+exhaust the available memory.  Second, SMT often relies on many preprocessing
+techniques, some being necessary for the soundness of tool, some being useful
+for efficiency.  The attitude followed by most SMT developer is to provide some
+kind of high level trace for essential preprocessing.  Non-essential
+preprocessing is turned off, with an important consequence on efficiency.  It
+may also be non-trivial to generate good proofs for some preprocessing
+techniques, e.g.\ for Skolemization, or symmetry breaking.  And finally, SMT
+solvers may use external tools as specialized reasoners for some
+theories.\marginpar{do we need citations? GLPK-CVC, harvey-E} Producing a proof
+in SMT may thus, in some cases, require certificates from those external
+reasoners.
 
 An important challenge for the SMT community is to provide a proof format which
-is sufficiently flexible to accomodate all needs, sufficiently compact to be
+is sufficiently flexible to accommodate all needs, sufficiently compact to be
 practical, and sufficiently elegant (which is very subjective) to be accepted by
 most.  Some formats have been proposed~\cite{}\marginpar{Cite Aaron, Besson,
   z3}, but it seems it is still too early for a consensus on how to represent
