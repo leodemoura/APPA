@@ -213,32 +213,15 @@ to produce proofs, without hurting efficiently too much.
 The paper is organized as follows.  Section~\ref{sec:impl} discusses the
 specifics of what is required to implement proof-production in SMT along with
 several challenges.  Next, Section~\ref{sec:history} gives a historical
-overview of the work on producing proofs in SMT.  We then discuss (in
+overview of the work on producing proofs in SMT.  This is followed by a
+discussion of proof formats in Section~\ref{sec:format}.  We then look at (in
 Sections~\ref{sec:cvc},~\ref{sec:veriT}, and~\ref{sec:z3}) the particular
 approaches taken by CVC4, veriT, and Z3. Section~\ref{sec:lean} includes a
 discussion of the new \emph{Lean} prover, which attempts to bridge the gap
 between SMT reasoning and proof assistants more directly by building a proof
 assistant with efficient and sophisticated built-in SMT capabilities.  Finally,
-Section~\ref{sec:app} discusses current applications of SMT proofs and then
+Section~\ref{sec:app} discusses current applications of SMT proofs, and then
 Section~\ref{sec:concl} concludes.
-
-%MathSAT5? SMTInterpol?
-
-%% Mention Fx7 - ``Rocket fast proof checking'' paper (TACAS 2008)
-%% Proofs and Refutations (Z3) (IWIL 2008)
-%% Towards an SMT Proof format SMT 2008, LFML 2008, SMT 2009
-%% veriT 2009
-%% PxTP 2011
-
-%% History of proofs in SMT.  CVC tools, Z3, veriT
-%% MathSAT has support for proofs, but unclear what the format is (brief mention
-%% in MathSAT5 paper)
-
-% Is there an open-source and minimalistic
-% *proof-producing* version of your kind of tool that would be
-% particularly suitable for beginners to look at and modify?
-%I fear CVC4 is too large to be good for beginners - how about veriT?
-
 
 \section{Implementing Proof-Production in SMT}
 \label{sec:impl}
@@ -510,38 +493,71 @@ Section~\ref{sec:z3}).  Finally, development on veriT, the successor to haRVey,
 began in earnest~\cite{BdOD+09}, with proof-production as a primary goal (see Section~\ref{sec:veriT}).
 Another important community development around this time was an attempt to
 converge on a standard proof format for SMT-LIB.  We discuss this effort in
-Section~\ref{sec:format}.
+Section~\ref{sec:format} below.
 
 At the time of this writing, the state of proofs in SMT are in flux.  A few
-groups are making a serious effort to developing solvers (e.g. CVC4 and veriT)
+groups are making a serious effort to develop solvers (e.g. CVC4 and veriT)
 capable of producing self-contained, independently-checkable proofs, though
 these are in progress and no standard format has been agreed upon.  Other
 solvers (like Z3) produce a trace of deduction steps, but reconstructing a full
 proof from these steps requires additional search in some cases.  Still other
 solvers (e.g. MathSAT, SMTInterpol), use proof technology primarily to drive
 additional solver functionality, like computing explanations, interpolants, or
-unsatisfiable cores.  In this paper, our focus is on solvers that can produce
-actual proof objects with the goal of having them be checked or translated by
-an external tool.
+unsatisfiable cores.  In this paper, we focus on tools that produce proofs with
+the goal of having them be checked or translated by an external tool.
 
-\subsection*{Proof Formats for SMT}
+\section{Proof Formats for SMT}
 \label{sec:format}
 
-\Note{Clark}
-There is no standard format for SMT.  There has been some discussion and even
-some proposals.  Mention various proposals.  Below, we will discuss four
-implementations of proofs in SMT.  The approaches are different enough to
-warrant separate treatment.
+The SMT-LIB initiative has produced a series of documents standardizing formats
+for theories, logics, models, and benchmarks.  An early goal of the initiative
+was to produce a standard format for proofs as well.  However, this proved to
+be challenging, primarily because each solver implements its decision
+procedures in a different way, meaning the proof rules for each solver could
+vary significantly.  Another challenge is that it is difficult to fomrally
+express the wide variety of rules needed to cover the decision procedures used
+in SMT solvers using existing proof languages (such as the Edinburgh Logical
+Framework, LF~\cite{HHP93}).
 
-Unlike SAT solvers, SMT solvers are usually large pieces of software: besides
-\marginpar{PF2All: do not be afraid to remove this if it fits nowhere}
-propositional reasoning engines, they include decision procedures that can
-themselves be quite complex.  Furthermore, the code of the components (i.e.\ the
-various decision procedures and the propositional reasoner) can be intricately
-mixed together.  Implementing a new SMT solver from scratch, or even getting
-into the code of an existing SMT solver, is a tedious task.  The OpenSMT
-solver~\cite{Bruttomesso4} is maybe the one that includes the best in its
-philosophy a less stiff learning curve for new developers.
+Probably the most ambitious effort to develop a standard proof format was the
+one led by Aaron Stump~\cite{ORS09,SO08} (at the time, a leader of the SMT-LIB initiative), who
+developed a language called LFSC, modeled after LF, but able to express more
+complicated rules by expressing side-conditions using pieces of trusted
+code in a small custom programming language.  LFSC allows a user to define a
+set of arbitrary inference rules and then use these to construct a proof.  LFSC
+was used as the proof language for the prototype proof-producing SMT
+solver CLSAT and was also integrated as an alternative proof-language in
+CVC3~\cite{SOR+13}.  LFSC is also the proof language used in CVC4 (see Section~\ref{sec:cvc4}).
+
+In 2011, the first Workshop on Proof Exchange for Theorem Proving (PxTP) was
+held, collocated with the 23rd Conference on Automated Deduction (CADE) in
+Wroc{\l}aw, Poland.  The topic of proof formats featured heavily, with several
+papers on the subject.  Besson, Fontaine, and Th\'ery proposed a proof format
+for SMT based on the syntax of SMT-LIB~\cite{BFT11}.  This later formed the basis for
+the veriT proof format (see Section~\ref{sec:veriT}).  B\"ohme and Weber made a
+plea from a user's perspective for proof formats to be clear, well-documented,
+and complete (i.e. not requiring any search to replay or check)~\cite{BW11}.
+
+Unfortunately, none of the proposed formats have caught on as a general proof
+language for SMT-LIB.  One reason for this is that there are not nearly as many
+consumers of SMT proofs as there are of SMT technology generally, so the proof
+format has not been prioritized.  Another is that there are differences of
+opinion on what features should be included in such a standard.  And another is
+that the few tools that produce proofs have considerable momentum behind their
+own formats and shifting to a new format would require a lot of work.  However,
+there are clear benefits to a standard format, especially for proof exchange
+between SMT solvers and other tools, so we expect this will continue to be a
+subject of debate and research.
+
+%% Unlike SAT solvers, SMT solvers are usually large pieces of software: besides
+%% \marginpar{PF: introduction is mostly done but this does not really fit well}
+%% propositional reasoning engines, they include decision procedures that can
+%% themselves be quite complex.  Furthermore, the code of the components (i.e.\ the
+%% various decision procedures and the propositional reasoner) can be intricately
+%% mixed together.  Implementing a new SMT solver from scratch, or even getting
+%% into the code of an existing SMT solver, is a tedious task.  The OpenSMT
+%% solver~\cite{} is maybe the one that includes the best in its philosophy a less
+%% stiff learning curve for new developers.
 
 
 \section{The CVC Family of SMT Solvers}
