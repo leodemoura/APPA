@@ -237,15 +237,15 @@ uninterpreted symbols and linear arithmetic.
 The satisifiability of sets of ground literals with equalities and uninterpreted
 symbols can be checked using congruence
 closure~\cite{Nelson2,Nieuwenhuis3,Nieuwenhuis6}.  Efficient algorithms are
-non-trivial, but the idea of congruence-closure algorithms is simple.  The algorithm
-builds a 
-partition of all relevant terms, according to the equalities, and checks for
+non-trivial, but the idea of congruence-closure algorithms is simple.  They
+build a 
+partition of all relevant terms, according to the equalities, and check for
 inconsistencies with negated equalities.  For instance, if the relevant terms
 are $a$, $b$, $f(a)$ and $f(b)$, the initial partition would be $\big\{\{a\},
 \{b\}, \{f(a)\}, \{f(b)\}\big\}$.  If an equality $a=b$ is asserted, the
 algorithm would merge the classes for $a$ and $b$, because of this equality, and
 would also merge the classes for $f(a)$ and $f(b)$ because it merged the
-arguments of $f$ and because equality is a congruence.  If the algorithm is
+arguments of $f$ and because equality is a congruence.  The resulting partition would be $\big\{\{a, b\}, \{f(a), f(b)\}\big\}$.  If the algorithm is
 aware that $f(a) \neq f(b)$ should hold, it detects a conflict as soon as $f(a)$
 and $f(b)$ are put in the same congruence class.  Producing proofs for congruence
 closure is thus simply a matter of keeping a trace of which (two) terms are merged
@@ -263,7 +263,7 @@ steps (i.e.\ an equality being the consequence of transitivity, and a congruence
 instance) are again simply connected using Boolean resolution.
 
 Another very important theory supported by many SMT solvers is linear
-arithmetic on reals, and decision procedures for this theory are often based on
+arithmetic on reals.  Decision procedures for this theory are often based on
 a specialized simplex algorithm~\cite{Dutertre1,KBD13}.  The algorithm
 maintains (a) a set of linear equalities, (b) upper and lower bounds on the
 variables, and (c) an assignment.  The bounds and the linear equalities come
@@ -275,24 +275,24 @@ linear equalities are combined linearly to produce new sets of equalities,
 always equivalent to the original set.  If the right strategies are used, the
 procedure is guaranteed to terminate either with an assignment satisfying all
 equalities and bounds, or an assignment that causes a specific linear equality
-to be in contradiction with the bounds on its variables.  If then suffices to
+to be in contradiction with the bounds on its variables.  It then suffices to
 collect the constraints corresponding to the equality and the bounds to derive
 a contradiction. In fact, the coefficients of the
 variables in the linear equality correspond to the coefficients of the linear
 combination related to Farkas' lemma (roughly, this lemma states that a set of
 linear inequalities is inconsistent if and only if there is a linear
-combination of those inequalities that reduces to $1 \leq 0$).
+combination of those inequalities that reduces to $1 \leq 0$;  see e.g.~\cite{Bockmayr1}).
 
 The above procedure only applies to reals.  Various techniques are used to adapt
 it for mixed real and integer linear arithmetic.  One is branching: if, in the
-real algorithm, a variable $x$ has a rational value (e.g.\ 1.5), the procedure
-may issue a new lemma stating $x\leq 1 \vee x \geq 2$.  Notice that this lemma
-is a tautology of arithmetic.  Another technique is to introduce cuts; cuts
-basically remove from the set of real-feasible solutions a subset with no integer
-solution.  Very schematically, cuts are linear combinations of already available
-constraints, strengthened using the fact that variables are integer, e.g.\ $x+y
-\leq 1.5$ can be strengthened to $x + y \leq 1$ if $x$ and $y$ are integer
-variables.
+real algorithm, an integer variable $x$ has a rational value (e.g.\ 1.5), the
+procedure may issue a new lemma stating $x\leq 1 \vee x \geq 2$.  Notice that
+this lemma is a tautology of arithmetic.  Another technique is to introduce
+cuts; cuts basically remove from the set of real-feasible solutions a subset
+with no integer solution.  Very schematically, cuts are linear combinations of
+already available constraints, strengthened using the fact that variables are
+integer, e.g.\ $x+y \leq 1.5$ can be strengthened to $x + y \leq 1$ if $x$ and
+$y$ are integer variables.
 
 Other theory reasoning engines found in modern solvers include modules for
 reasoning about arrays, inductive data types, bit-vectors, strings, and
@@ -330,20 +330,20 @@ Quantifier reasoning in SMT is typically done through
 skolemization when possible, and heuristic instantiation
 otherwise~\cite{Ge1,Moura9}.  Proofs involving instantiations are easily
 obtained by augmenting ground proofs with applications of a simple
-instantiation rule.  Formulas like $\forall \mathbf{x}
+instantiation rule.  Formulas like $\forall \mathbf{x}\,
 \varphi(\mathbf{x}) \Rightarrow \varphi(\mathbf{t})$ --- where $\mathbf{x}$ is a
 vector of variables and $\mathbf{t}$ is a vector of terms with the same length
 --- are first-order tautologies and can be provided as lemmas for building proofs.
 
 Skolemization, however, is not trivial.  This is because skolemization is
 typically implemented by introducing a new uninterpreted constant or function,
-but such a step does not preserve logical equivalence.
+but such a step % does not preserve logical equivalence.
 is not locally sound.  It is only when looking at a global view
 of the proof, noting that the conclusion does not involve any introduced
 symbols, that soundness can be shown.  Proofs involving skolemization must
 therefore track the introduced constants and ensure they are not used
 in the conclusion of the proof.  Furthermore, for efficiency, the solver may
-resort to advanced techniques for Skolemization that are even less amenable to
+resort to advanced techniques for skolemization that are even less amenable to
 proofs.
 
 Another challenge is \emph{preprocessing}.  SMT solvers typically include a
@@ -503,7 +503,7 @@ persisted for years and would have been very difficult to detect without the
 aid of the proof-checker.
 
 The same year also marked the appearance of proof-production capabilities in
-several additional SMT solvers.  Fx7 was a solver written by Michal Moske\l
+several additional SMT solvers.  Fx7 was a solver written by Micha{\l} Moskal
 which emphasized quantified reasoning and fast proof-checking~\cite{M08}.
 MathSAT4 used an internal proof engine to enable the generation of
 unsatisfiable cores and interpolants~\cite{BCF+08}.  Z3 began supporting
@@ -1058,7 +1058,7 @@ for efficiency.  The attitude followed by most SMT developer is to provide some
 kind of high level trace for essential preprocessing.  Non-essential
 preprocessing is turned off, with an important consequence on efficiency.  It
 may also be non-trivial to generate good proofs for some preprocessing
-techniques, e.g.\ for Skolemization, or symmetry breaking.  And finally, SMT
+techniques, e.g.\ for skolemization, or symmetry breaking.  And finally, SMT
 solvers may use external tools as specialized reasoners for some
 theories.\marginpar{do we need citations? GLPK-CVC, harvey-E} Producing a proof
 in SMT may thus, in some cases, require certificates from those external
