@@ -275,7 +275,7 @@
 
 @incollection{SD02,
 year={2002},
-booktitle={Automated Deduction—CADE-18},
+booktitle=cade,
 volume={2392},
 series={Lecture Notes in Computer Science},
 editor={Voronkov, Andrei},
@@ -358,7 +358,7 @@ year = {2003}
 
 @inproceedings{DR03,
 author = {Deharbe, D. and Ranise, S.},
-booktitle = {First International Conference onSoftware Engineering and Formal Methods, 2003.Proceedings.},
+booktitle = {First International Conference on Software Engineering and Formal Methods, 2003.},
 isbn = {0-7695-1949-0},
 pages = {220--228},
 publisher = {IEEE},
@@ -609,7 +609,6 @@ year = {2013}
 address = {Wroclaw, Pologne},
 author = {Besson, Fr\'{e}d\'{e}ric and Fontaine, Pascal and Th\'{e}ry, Laurent},
 booktitle = {First International Workshop on Proof eXchange for Theorem Proving - PxTP 2011},
-editor = {Fontaine, Pascal and Stump, Aaron},
 month = aug,
 title = {A Flexible Proof Format for {SMT}: a Proposal},
 year = {2011}
@@ -619,7 +618,6 @@ year = {2011}
 address = {Wroclaw, Pologne},
 author = {B\"{o}hme, Sascha and Weber, Tjark},
 booktitle = {First International Workshop on Proof eXchange for Theorem Proving - PxTP 2011},
-editor = {Fontaine, Pascal and Stump, Aaron},
 month = aug,
 title = {Designing Proof Formats: A User's Perspective --- Experience Report},
 year = {2011}
@@ -634,4 +632,58 @@ year = {2011}
   month     = oct,
   year      = 2013,
   note      = "Portland, Oregon",
+}
+
+@inproceedings{Hofferek1,
+author = {Georg Hofferek and Ashutosh Gupta and Bettina K\"{o}nighofer and Jie-Hong Roland Jiang and Roderick Paul Bloem},
+title = {Synthesizing Multiple Boolean Functions using Interpolation on a Single Proof},
+booktitle = {FMCAD 2013 - Formal Methods in Computer-Aided Design},
+year = {2013},
+pages = {77 - 84},
+publisher = {IEEE},
+}
+
+@inproceedings{Deharbe1,
+year={2012},
+isbn={978-3-642-30884-0},
+booktitle={Abstract State Machines, Alloy, B, VDM, and Z},
+volume={7316},
+series={Lecture Notes in Computer Science},
+editor={Derrick, John and Fitzgerald, John and Gnesi, Stefania and Khurshid, Sarfraz and Leuschel, Michael and Reeves, Steve and Riccobene, Elvinia},
+doi={10.1007/978-3-642-30885-7_14},
+title={SMT Solvers for Rodin},
+url={http://dx.doi.org/10.1007/978-3-642-30885-7_14},
+publisher={Springer Berlin Heidelberg},
+author={Déharbe, David and Fontaine, Pascal and Guyot, Yoann and Voisin, Laurent},
+pages={194-207}
+}
+
+@inproceedings{AFGKTW11b,
+    hal_id = {hal-00639130},
+    url = {http://hal.inria.fr/hal-00639130},
+    title = {{A Modular Integration of SAT/SMT Solvers to Coq through Proof Witnesses}},
+    author = {Armand, Micha{\"e}l and Faure, Germain and Gr{\'e}goire, Benjamin and Keller, Chantal and Thery, Laurent and Werner, Benjamin},
+    abstract = {{We present a way to enjoy the power of SAT and SMT provers in Coq without compromising soundness. This requires these provers to return not only a yes/no answer, but also a proof witness that can be independently rechecked. We present such a checker, written and fully certified in Coq. It is conceived in a modular way, in order to tame the proofs' complexity and to be extendable. It can currently check witnesses from the SAT solver ZChaff and from the SMT solver veriT. Experiments highlight the efficiency of this checker. On top of it, new reflexive Coq tactics have been built that can decide a subset of Coq's logic by calling external provers and carefully checking their answers.}},
+    language = {Anglais},
+    affiliation = {MARELLE - INRIA Sophia Antipolis , TYPICAL - INRIA Saclay - Ile de France , Laboratoire d'informatique de l'{\'e}cole polytechnique - LIX},
+    booktitle = {{CPP - Certified Programs and Proofs - First International Conference - 2011}},
+    publisher = {Springer},
+    pages = {135-150},
+    address = {Kenting, Ta{\"\i}wan, Province De Chine},
+    volume = {7086},
+    editor = {Jouannaud, Jean-Pierre and Shao, Zhong },
+    series = {Lecture notes in computer science - LNCS },
+    audience = {internationale },
+    doi = {10.1007/978-3-642-25379-9\_12 },
+    year = {2011},
+    month = Dec,
+    pdf = {http://hal.inria.fr/hal-00639130/PDF/cpp11.pdf},
+}
+
+@PhdThesis{keller13,
+  author =       {Keller, C.},
+  title =        {{A Matter of Trust: Skeptical Communication Between Coq and External Provers}},
+  school =       {École Polytechnique},
+  year =         {2013},
+  month =        {June}
 }

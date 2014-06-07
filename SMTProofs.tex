@@ -535,7 +535,7 @@ for theories, logics, models, and benchmarks.  An early goal of the initiative
 was to produce a standard format for proofs as well.  However, this proved to
 be challenging, primarily because each solver implements its decision
 procedures in a different way, meaning the proof rules for each solver could
-vary significantly.  Another challenge is that it is difficult to fomrally
+vary significantly.  Another challenge is that it is difficult to formally
 express the wide variety of rules needed to cover the decision procedures used
 in SMT solvers using existing proof languages (such as the Edinburgh Logical
 Framework, LF~\cite{HHP93}).
@@ -626,10 +626,10 @@ current project and proofs for arithmetic is expected to follow soon thereafter.
 \label{sec:veriT}
 
 The veriT SMT solver is developed jointly at Loria, Nancy (France) and UFRN,
-Natal (Brazil).  It is open-source, under the permissive BSD licence.  veriT is
-first a testing plate-form for techniques developed around SMT, but it is
-sufficienctly stable to be used by third parties.  Proofs in veriT are mainly
-resolution proofs interleaved with theory reasoning lemmas.
+Natal (Brazil).  It is open-source, under the BSD license.  veriT is first a
+testing plate-form for techniques developed around SMT, but it is sufficienctly
+stable to be used by third parties.  Proofs in veriT are mainly resolution
+proofs interleaved with theory reasoning lemmas.
 
 The proof trace language of veriT is inspired from the SMT-LIB 2.0 standard.  A
 sample proof for our running example~\ref{eq:example} is given in
@@ -692,7 +692,8 @@ The first line gives the input.  Clauses {\tt c2} to {c8} explain clausification
 of the input.  Equality reasoning produced clauses labeled with {\tt
   eq\_congruent(\_pred)} and {\tt eq\_reflexive}, whereas the linear arithmetic
 module produced all the clauses labeled {\tt la\_disequality} and {\tt
-  la\_generic}.  The rest of the proof is mainly resolution applications, and ends with the empty clause.
+  la\_generic}.  The rest of the proof is mainly resolutions, and ends with the
+empty clause.
 
 % PF I should maybe say more...
 
@@ -707,7 +708,7 @@ input language, but which does not fit well with the SMT-LIB language.
 
 Z3 is a Satisfiability Modulo Theories (SMT) solver developed at
 Microsoft Research.  Z3 source code is available online, and it is
-freely for non-commercial purposes.  Z3 is used in various software
+free for non-commercial purposes.  Z3 is used in various software
 analysis and test-case generation projects at Microsoft Research and
 elsewhere.  Proof generation is based on two simple ideas: (1) a
 notion of implicit quotation to avoid introducing auxiliary variables,
@@ -776,7 +777,7 @@ For example, $\mbox{\emph{rewrite}}(x + x = 2 x)$ is a proof for $x + x = 2x$.
 Notice that Z3 does not axiomatize the legal rewrites.
 Instead, to check the rewrite steps, one must rely on a
 proof checker to be able to apply similar inferences for the set of built-in theories.
-Thus, like VeriT, Z3 proofs are coarse grained and rather falls into the “proof trace”
+Thus, like veriT, Z3 proofs are coarse grained and rather falls into the “proof trace”
 category rather than full detailed proof.
 
 Since Z3 proofs are terms, they can be traversed using the Z3 API.
@@ -1018,9 +1019,16 @@ theorem forall_or_distributer {A : Type} (p : Bool) (q : A -> Bool)
 
 \subsection{veriT}
 
-Users targeted by our format are people who would like to replay those proofs into proof assistants, people working on interpolation (veriT does not provide a service for interpolation), and people wanting unsat cores (proofs are here overkill, but proofs are a way to get unsat cores without getting into the solver and design special techniques).
+Proofs were first implemented in veriT to allow proof reconstruction of SMT
+proofs within proof assistants.  This feature has been successfully used with
+Isabelle~\cite{FMM+06}, and later with Coq within the SMTCoq
+tool~\cite{AFGKTW11b,keller13}.
 
-Georg Hofferek has used our proofs for multiple interpolant computation in some synthesis problems (TODO more details/citation later).  In the Rodin plugin to SMT, veriT's proofs are used as a mean to quickly extract a core.  Proofs from veriT are used in Coq-SMT (TODO should check) for proof reconstruction of SMT proofs.
+Georg Hofferek et al.~\cite{Hofferek1} used the proof producing capability of
+veriT in the context of controller synthesis for pipelined processors.  The
+method basically builds several interpollants from a unique proof.  In the Rodin
+plugin to SMT~\cite{Deharbe1}, proofs from veriT are used as a mean to quickly
+extract unsatisfiable cores.
 
 \subsection{Z3}
 
