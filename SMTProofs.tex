@@ -133,7 +133,7 @@ presents the above example formula in this format.
 SMT solvers were originally designed as decision procedures for
 decidable quantifier-free fragments, but many SMT solvers additionally tackle
 quantifiers, and some contain decision procedures for certain decidable quantified fragments
-(see e.g.~\cite{Ge1,Ge2}).  For these solvers, refutational completeness for first-order logic
+(see e.g.~\cite{Ge2}).  For these solvers, refutational completeness for first-order logic
 (with equality but without further interpreted symbols) is an explicit goal.
 Also, some SMT solvers now deal with theories that are undecidable even in the
 quantifier-free case, for instance non-linear arithmetic on integers~\cite{Borralleras1}.
@@ -168,37 +168,11 @@ thus also an interleaving of SAT proofs and theory reasoning proofs.  The SAT
 proofs are typically based on some form of resolution, whereas the theory reasoning
 is used to justify theory lemmas, i.e.\ the new clauses added from the theory
 reasoner.
-
-% PF this should be improved
-The theory reasoner may be a decision procedure for one theory, e.g.\ congruence
-closure~\cite{Nelson2,Nieuwenhuis6} for uninterpreted symbols or a simplex-based
-procedure~\cite{Dutertre1} for linear arithmetic, but it is often a
-combination of decision procedures for multiple theories.  Combination
-frameworks~\cite{Nelson3,Tinelli1} build decision procedures for sets of
-literals mixing interpreted symbols from several decidable languages (like the
-aforementioned linear arithmetic and uninterpreted symbols) into one decision
-procedure for the union of languages.  Combining the decision procedures is possible
-when the theories in the combination satisfy certain properties.  A sufficient
-condition, for instance, is that the theories be \emph{stably-infinite}\footnote{A theory
-  is stably-infinite if every satisfiable set of literals in the theory has an
-  infinite model.} and disjoint; this is notably the case for linear arithmetic
-on integers and reals, and for uninterpreted symbols.  Combining theories further
-involves guessing which shared terms are equal and which are not, or,
-equivalently, communicating disjunctions of equalities between decision
-procedures.  These guesses show up as additional literals in theory lemmas.
-Proofs for combinations of theories are thus built from proofs in the
-theories in the combination, and the component proofs are simply combined using
-Boolean reasoning rules.
-
-Quantifier reasoning in SMT is still mostly done through
-instantiation~\cite{Moura9}.  Proofs involving quantifier reasoning are thus
-just ground proofs augmented with some instantiation steps.  Skolemization is,
-however, not trivial.  While it is not absolutely clear how to output a good
-proof for some preprocessing techniques (e.g.\ Skolemization, and to a lesser
-extend clausification) some other preprocessing techniques pose another problem.
-Rewriting is pervasive in SMT solving, and it is not easy to be proof producing
-for every single rewriting step that can occur in the solver.  More generally,
-the main challenge of proof production is to collect and keep enough information
+The entire proof ends up having the shape of a Boolean resolution tree, each of
+whose leaves is a clause.  These clauses are either derived from the input
+formula or are theory lemmas, each of which must be justified by
+theory-specific reasoning.
+The main challenge of proof production is to collect and keep enough information
 to produce proofs, without hurting efficiency too much.
 
 %\Note{Clark}
@@ -231,14 +205,14 @@ Section~\ref{sec:concl} concludes.
 Since the core of SMT solvers is mainly a SAT solver adapted for the needs of
 SMT, the core of the proof is also a SAT proof.  We will refer to the other
 article by Marijn Heule, in the same volume, for more details on SAT solving.
-Let us just remind that SAT solvers work on a conjunctive normal form, and build
+Let us just recall that SAT solvers work on a conjunctive normal form, and build
 a (partial) assignment using Boolean propagations and decisions.  If building
 this assignment fails (i.e.\ it falsifies a clause) because of some decisions,
 the algorithm analyses the conflict, learns a new clause that will serve as a
 guide to avoid repeating the same wrong decisions again, and backtracks.  Only
 this learning phase is important for proofs, and it is easy to generate a
 resolution trace corresponding to this conflict analysis and production of the
-learned clause.  Proof producing SMT solvers rely on the underlying SAT solver
+learned clause.  Proof-producing SMT solvers rely on the underlying SAT solver
 to produce this resolution proof.
 
 In the context of SAT solving, a conflict is always due to the assignment
@@ -249,17 +223,22 @@ conflicting with such an assignment, but it is obviously inconsistent on the
 theory level.  The theory reasoner embedded in the SMT solver checks assignments
 for theory consistency.  In the present case, it would notify a conflict to the
 underlying SAT engine, and would produce the clause $\neg p_{a=b} \vee p_{f(a) =
-  f(b)}$.  This theory clause refines the propositional abstraction with some
+  f(b)}$.  This \emph{theory lemma} refines the propositional abstraction with some
 knowledge from the theory.  This knowledge can then be used like any other
-clause.  It theory reasoners provide detailed proofs for theory clauses, the SMT
+clause.  If theory reasoners provide detailed proofs for theory lemmas, the SMT
 proof is just the interleaving of these theory proofs and the resolution proofs
 generated by the SAT solver.
 
+\subsection{Proofs of Theory Lemmas}
+
+Simple examples of theory reasoners include decision procedures for
+uninterpreted symbols and linear arithmetic.
 The satisifiability of sets of ground literals with equalities and uninterpreted
 symbols can be checked using congruence
-closure~\cite{Nelson2,Nieuwenhuis3,Nieuwenhuis6}.  Efficient algorithms are non
-trivial, but the idea of congruence closure algorithms is simple.  It builds a
-partition of all relevant terms, according to the equalities, and check for
+closure~\cite{Nelson2,Nieuwenhuis3,Nieuwenhuis6}.  Efficient algorithms are
+non-trivial, but the idea of congruence-closure algorithms is simple.  The algorithm
+builds a 
+partition of all relevant terms, according to the equalities, and checks for
 inconsistencies with negated equalities.  For instance, if the relevant terms
 are $a$, $b$, $f(a)$ and $f(b)$, the initial partition would be $\big\{\{a\},
 \{b\}, \{f(a)\}, \{f(b)\}\big\}$.  If an equality $a=b$ is asserted, the
@@ -267,8 +246,8 @@ algorithm would merge the classes for $a$ and $b$, because of this equality, and
 would also merge the classes for $f(a)$ and $f(b)$ because it merged the
 arguments of $f$ and because equality is a congruence.  If the algorithm is
 aware that $f(a) \neq f(b)$ should hold, it detects a conflict as soon as $f(a)$
-and $f(b)$ are put in a some congruence class.  Producing proofs for congruence
-closure is thus only a matter of keeping a trace of which (two) terms are merged
+and $f(b)$ are put in the same congruence class.  Producing proofs for congruence
+closure is thus simply a matter of keeping a trace of which (two) terms are merged
 and why (i.e.\ either because of a congruence, or an asserted equality).  This
 information can be stored in an acyclic undirected\footnote{For efficiency
   reasons, modern congruence closure alogrithms actually use a directed
@@ -278,56 +257,108 @@ by transitivity using asserted equalities and congruences, then there is a
 (unique) path between the two terms in the graph.  To prove a congruence
 (e.g.\ $g(a,c) = g(b,d)$), it suffices to first prove the equality of the
 corresponding arguments ($a=b$, $c=d$) and use an instance of the congruence
-axiom schema, e.g.\ $(a=b \wedge c=d) \Rightarrow g(a,c) = g(b,d)$.  Proofs
+axiom schema, e.g.\ $(a=b \wedge c=d) \Rightarrow g(a,c) = g(b,d)$.  Proof
 steps (i.e.\ an equality being the consequence of transitivity, and a congruence
-instance) are again simply connected using resolution.
+instance) are again simply connected using Boolean resolution.
 
-Another very important theory supported by many SMT solvers is linear arithmetic
-on reals, and the decision procedures they implement are often based on a
-specialized simplex~\cite{Dutertre1}.  The algorithm maintains (a) a set of
-linear equalities (b) upper and lower bounds on the variables (c) an
-assignement.  The bounds and the linear equalities directly come from the
-asserted literals; new variables are introduced so that bounds only apply on
-variables and not on more complicated linear combinations.  Starting from an
-assignment satisfying all equalities, the procedure tries to progressively
-satisfy all bounds on variables.  During the process, the linear equalities are
-combined linearly to provide new sets of equalities, always equivalent to the
-original set.  If the right strategies are used, it is guaranteed that the
-procedure terminates either on an assignment satisfying all equalities and
-bounds, or one linear equality will be in contradiction with the bounds on its
-variables.  If then suffices to collect the constraints corresponding to the
-equality and the bounds to have the assertions involved in the contradiction.
-In fact, the coefficients of the variables in the linear equality correspond to
-the coefficients of the linear combination related to Farkas'lemma: roughly,
-this lemma states that a set of linear inequalities is inconsistent if and only
-if there is a linear combination of those inequalities resulting in $1 \leq 0$.
+Another very important theory supported by many SMT solvers is linear
+arithmetic on reals, and decision procedures for this theory are often based on
+a specialized simplex algorithm~\cite{Dutertre1,KBD13}.  The algorithm
+maintains (a) a set of linear equalities, (b) upper and lower bounds on the
+variables, and (c) an assignment.  The bounds and the linear equalities come
+directly from asserted literals; new variables are introduced so that bounds
+only apply on variables and not on more complicated linear combinations.
+Starting from an assignment satisfying all equalities, the procedure tries to
+progressively satisfy all bounds on the variables.  During the process, the
+linear equalities are combined linearly to produce new sets of equalities,
+always equivalent to the original set.  If the right strategies are used, the
+procedure is guaranteed to terminate either with an assignment satisfying all
+equalities and bounds, or an assignment that causes a specific linear equality
+to be in contradiction with the bounds on its variables.  If then suffices to
+collect the constraints corresponding to the equality and the bounds to derive
+a contradiction. In fact, the coefficients of the
+variables in the linear equality correspond to the coefficients of the linear
+combination related to Farkas' lemma (roughly, this lemma states that a set of
+linear inequalities is inconsistent if and only if there is a linear
+combination of those inequalities that reduces to $1 \leq 0$).
 
 The above procedure only applies to reals.  Various techniques are used to adapt
 it for mixed real and integer linear arithmetic.  One is branching: if, in the
 real algorithm, a variable $x$ has a rational value (e.g.\ 1.5), the procedure
 may issue a new lemma stating $x\leq 1 \vee x \geq 2$.  Notice that this lemma
 is a tautology of arithmetic.  Another technique is to introduce cuts; cuts
-basically remove from the set of feasible solutions a subset with no integer
+basically remove from the set of real-feasible solutions a subset with no integer
 solution.  Very schematically, cuts are linear combinations of already available
 constraints, strengthened using the fact that variables are integer, e.g.\ $x+y
 \leq 1.5$ can be strengthened to $x + y \leq 1$ if $x$ and $y$ are integer
 variables.
 
-Among reasoning engines found in modern solvers, one finds non-linear arithmetic
-procedures and modules to handle data structures like arrays and bit-vectors.
+Other theory reasoning engines found in modern solvers include modules for
+reasoning about arrays, inductive data types, bit-vectors, strings, and
+non-linear arithmetic.
 Their internals may vary a lot from one solver to another, and we will not
-consider them in more details here.  For some non-linear arithmetic techniques
+consider them in more detail here.  For some non-linear arithmetic techniques
 (see e.g.~\cite{Bockmayr1}) like cylindrical algebraic decomposition or
 virtual substitution, it is not even clear how to produce useful certificates.
 
-Typically, SMT solvers handle quantifiers using instantiation, i.e.\ generating
-ground instances of universal formulas.  Lemmas like $\forall \mathbf{x}
+The theory reasoner may be a decision procedure for a single theory, but it is often a
+combination of decision procedures for multiple theories.  Combination
+frameworks~\cite{Nelson3,Tinelli1} decide  sets of
+literals mixing interpreted symbols from several decidable languages (like the
+aforementioned linear arithmetic and uninterpreted symbols) by combining the
+decision procedures for the individual theories into one decision
+procedure for the union of languages.  Combining the decision procedures is possible
+when the theories in the combination satisfy certain properties.  A sufficient
+condition, for instance, is that the theories be \emph{stably-infinite}\footnote{A theory
+  is stably-infinite if every satisfiable set of literals in the theory has an
+  infinite model.} and disjoint; this is notably the case for the combination
+of linear arithmetic with uninterpreted symbols.  Combining theories also
+involves guessing which shared terms are equal and which are not, or,
+equivalently, communicating disjunctions of equalities between decision
+procedures.  In order for a formula to be \emph{unsatisfiable}, each
+possible equivalence relation over the shared terms must be ruled out.  This
+typically is done by producing many individual theory lemmas, which, taken
+together, rule out all of the equivalence relations.  Proofs for combinations of
+theories are thus built from proofs of the theory lemmas in the individual
+theories, and the component proofs are simply combined using
+Boolean reasoning rules.
+
+\subsection{Challenging Aspects of Proof Production}
+
+Quantifier reasoning in SMT is typically done through
+skolemization when possible, and heuristic instantiation
+otherwise~\cite{Ge1,Moura9}.  Proofs involving instantiations are easily
+obtained by augmenting ground proofs with applications of a simple
+instantiation rule.  Formulas like $\forall \mathbf{x}
 \varphi(\mathbf{x}) \Rightarrow \varphi(\mathbf{t})$ --- where $\mathbf{x}$ is a
 vector of variables and $\mathbf{t}$ is a vector of terms with the same length
---- are first-order tautologies and can be provided as lemmas.  Since
-Skolemization produces new symbols, it does not preserve logical equivalence and
-thus requires some care.  Furthermore, for efficiency, it may be useful to resort to
-advanced techniques for Skolemization that are even less amenable to proofs.
+--- are first-order tautologies and can be provided as lemmas for building proofs.
+
+Skolemization, however, is not trivial.  This is because skolemization is
+typically implemented by introducing a new uninterpreted constant or function,
+but such a step does not preserve logical equivalence.
+is not locally sound.  It is only when looking at a global view
+of the proof, noting that the conclusion does not involve any introduced
+symbols, that soundness can be shown.  Proofs involving skolemization must
+therefore track the introduced constants and ensure they are not used
+in the conclusion of the proof.  Furthermore, for efficiency, the solver may
+resort to advanced techniques for Skolemization that are even less amenable to
+proofs.
+
+Another challenge is \emph{preprocessing}.  SMT solvers typically include a
+module for preprocessing formulas to simplify them before running the main
+algorithm to search for a satisfying assignment.  This module may perform
+anything from simple rewrites (such as rewriting $x=y$ to $y=x$) to complex
+global simplifications that significantly change the structure of the formula.
+At the end of preprocessing, the formula is also typically converted into
+conjunctive normal form (CNF).  The CNF clauses form leaves in the ultimate
+resolution proof.  Thus, in order to justify one of these clauses, a proof must
+capture each preprocessing step that was used to derive it from the original
+formula.  Such book-keeping is tedious and error-prone.  One strategy is to
+disable complicated preprocessing techniques during proof-production.  Still,
+SMT solvers rely on some minimal preprocessing for correct functioning, so in
+order to generate complete proofs, at least this preprocessing has to be
+recorded as part of the proof.
 
 % Please list the (most common) proof systems
 % (e.g. resolution, superposition, tableaux,
@@ -365,21 +396,9 @@ advanced techniques for Skolemization that are even less amenable to proofs.
 % What are the trends?
 
 
-\subsection*{Challenges}
+%\subsection*{Challenges}
 
 %\Note{Clark}
-SMT solvers typically include a module for preprocessing formulas to simplify
-them before running the main algorithm to search for a satisfying assignment.
-This module may perform anything from simple rewrites (such as rewriting $x=y$
-to $y=x$) to complex global simplifications that significantly change the
-structure of the formula.
-
-Preprocessing poses a challenge for proof-production.  Each transformation done
-by the preprocessor must be reflected in the produced proof.
-
-How do the proof search techniques in SMT affect proof production?  For
-example, rewriting, CNF conversion, preprocessing are challenging for proofs.
-Some processing is typically disabled when producing proofs.
 
 % Which algorithms are used to search for a proof/refutation?
 % Is the procedure able to find (counter-)models as well?
@@ -528,7 +547,7 @@ code in a small custom programming language.  LFSC allows a user to define a
 set of arbitrary inference rules and then use these to construct a proof.  LFSC
 was used as the proof language for the prototype proof-producing SMT
 solver CLSAT and was also integrated as an alternative proof-language in
-CVC3~\cite{SOR+13}.  LFSC is also the proof language used in CVC4 (see Section~\ref{sec:cvc4}).
+CVC3~\cite{SOR+13}.  LFSC is also the proof language used in CVC4 (see Section~\ref{sec:cvc}).
 
 In 2011, the first Workshop on Proof Exchange for Theorem Proving (PxTP) was
 held, collocated with the 23rd Conference on Automated Deduction (CADE) in
