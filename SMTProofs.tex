@@ -615,8 +615,81 @@ all of the pieces together into a full proof.
 
 As mentioned above, the proof format used by CVC4 is LFSC.
 Figure~\ref{fig:lfsc} shows an LFSC proof for the example from Section~\ref{sec:intro}.
+%TODO: explain this a bit.
 
-%TODO: add figure, explain
+\begin{figure}
+{\scriptsize
+\begin{verbatim}
+(check
+(% a var_real
+(% b var_real
+(% x var_real
+(% f (term (arrow Real Real))
+(% q (term (arrow Real Bool))
+(% @F1 (th_holds (<=_Real (a_var_real a) (a_var_real b)))
+(% @F2 (th_holds (<=_Real (a_var_real b) (+_Real (a_var_real a) (a_var_real x))))
+(% @F3 (th_holds (= Real (a_var_real x) (a_real 0/1)))
+(% @F4 (th_holds (or (not (= Real (apply _ _ f (a_var_real a)) (apply _ _ f (a_var_real b)))) 
+                     (and (= Bool (apply _ _ q (a_var_real a)) btrue)
+                          (= Bool (apply _ _ q (+_Real (a_var_real b) (a_var_real x))) bfalse))))
+(: (holds cln)
+
+(decl_atom (<=_Real (a_var_real a) (a_var_real b)) (\ v1 (\ a1
+(decl_atom (<=_Real (a_var_real b) (+_Real (a_var_real a) (a_var_real x))) (\ v2 (\ a2
+(decl_atom (= Real (a_var_real x) (a_real 0/1)) (\ v3 (\ a3
+(decl_atom (= Real (a_var_real a) (a_var_real b)) (\ v4 (\ a4
+(decl_atom (= Real (apply _ _ f (a_var_real a)) (apply _ _ f (a_var_real b))) (\ v5 (\ a5
+(decl_atom (= Bool (apply _ _ q (a_var_real a)) btrue) (\ v6 (\ a6
+(decl_atom (= Bool (apply _ _ q (+_Real (a_var_real b) (a_var_real x))) bfalse) (\ v7 (\ a7
+(decl_atom (<=_Real (a_var_real b) (a_var_real a)) (\ v8 (\ a8
+(decl_atom (= Real (a_var_real a) (+_Real (a_var_real b) (a_var_real x))) (\ v9 (\ a9
+(decl_atom (and (= Bool (apply _ _ q (a_var_real a)) btrue)
+                (= Bool (apply _ _ q (+_Real (a_var_real b) (a_var_real x))) bfalse)) (\ v10 (\ a10
+
+; CNFication
+(satlem _ _ (asf _ _ _ a1 (\ l1 (clausify_false (contra _ @F1 l1)))) (\ C1 
+(satlem _ _ (asf _ _ _ a2 (\ l2 (clausify_false (contra _ @F2 l2)))) (\ C2 
+(satlem _ _ (asf _ _ _ a3 (\ l3 (clausify_false (contra _ @F3 l3)))) (\ C3
+(satlem _ _ (ast _ _ _ a5 (\ l5 (asf _ _ _ a6 (\ l6 (clausify_false (contra _
+  (and_elim_1 _ _ (or_elim_1 _ _ (not_not_intro _ l5) @F4)) l6)))))) (\ C4
+(satlem _ _ (ast _ _ _ a5 (\ l5 (asf _ _ _ a7 (\ l7 (clausify_false (contra _
+  (and_elim_2 _ _ (or_elim_1 _ _ (not_not_intro _ l5) @F4)) l7)))))) (\ C5
+
+; Theory lemmas
+; ~a4 ^ a1 ^ a8 => false
+(satlem _ _ (asf _ _ _ a4 (\ l4 (ast _ _ _ a1 (\ l1 (ast _ _ _ a8 (\ l8 (clausify_false (contra _ l1
+ (or_elim_1 _ _ (not_not_intro _ (<=_to_>=_Real _ _ l8)) (not_=_to_>=_=<_Real _ _ l4)))))))))) (\ C6 
+; a2 ^ a3 ^ ~a8 => false
+(satlem _ _ (ast _ _ _ a2 (\ l2 (ast _ _ _ a3 (\ l3 (asf _ _ _ a8 (\ l8 (clausify_false
+ (poly_norm_>= _ _ _ (<=_to_>=_Real _ _ l2) (pn_- _ _ _ _ _ (pn_+ _ _ _ _ _
+  (pn_var a) (pn_var x)) (pn_var b)) (\ pn2
+ (poly_norm_= _ _ _ (symm _ _ _ l3) (pn_- _ _ _ _ _ (pn_const 0/1) (pn_var x)) (\ pn3
+ (poly_norm_> _ _ _ (not_<=_to_>_Real _ _ l8) (pn_- _ _ _ _ _ (pn_var b) (pn_var a)) (\ pn8
+ (lra_contra_> _ (lra_add_>_>= _ _ _ pn8 (lra_add_=_>= _ _ _ pn3 pn2)))))))))))))))) (\ C7
+; a4 ^ ~a5 => false
+(satlem _ _ (ast _ _ _ a4 (\ l4 (asf _ _ _ a5 (\ l5 (clausify_false
+ (contra _ (cong _ _ _ _ _ _ (refl _ f) l4) l5)))))) (\ C8
+; a3 ^ a4 ^ ~a9 => false
+(satlem _ _ (ast _ _ _ a3 (\ l3 (ast _ _ _ a4 (\ l4 (asf _ _ _ a9 (\ l9 (clausify_false
+ (poly_norm_= _ _ _ (symm _ _ _ l3) (pn_- _ _ _ _ _ (pn_const 0/1) (pn_var x)) (\ pn3
+ (poly_norm_= _ _ _ l4 (pn_- _ _ _ _ _ (pn_var a) (pn_var b)) (\ pn4
+ (poly_norm_distinct _ _ _ l9 (pn_- _ _ _ _ _ (pn_+ _ _ _ _ _
+  (pn_var b) (pn_var x)) (pn_var a)) (\ pn9
+ (lra_contra_distinct _ (lra_add_=_distinct _ _ _
+  (lra_add_=_= _ _ _ pn3 pn4) pn9))))))))))))))) (\ C9
+; a9 ^ a6 ^ a7 => false
+(satlem _ _ (ast _ _ _ a9 (\ l9 (ast _ _ _ a6 (\ l6 (ast _ _ _ a7 (\ l7 (clausify_false
+ (contra _ (trans _ _ _ _ (trans _ _ _ _ (symm _ _ _ l6) (cong _ _ _ _ _ _
+  (refl _ q) l9)) l7) b_true_not_false)))))))) (\ C10
+
+; Resolution proof
+(satlem_simplify _ _ _ (R _ _ (Q _ _ (Q _ _ C6 C1 v1) (Q _ _ (Q _ _ C7 C2 v2) C3 v3) v8)
+(Q _ _ (Q _ _ (Q _ _ (Q _ _ (R _ _ C9 C10 v9) C3 v3) C4 v6) C5 v7) C8 v5) v4)
+(\ x x)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+\end{verbatim}
+}
+\caption{\label{fig:lfsc} An LFSC proof for example Formula \ref{eq:example}.}
+\end{figure}
 
 At the time this article is being written, CVC4 supports proofs for
 uninterpreted functions and arrays.  Proofs for the theory of bit-vectors is a
