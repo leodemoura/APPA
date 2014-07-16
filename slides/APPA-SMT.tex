@@ -108,12 +108,13 @@
     $a \leq b \wedge b \leq a + x \wedge x = 0 \wedge
       \big[ f(a) \neq f(b) \vee (p(a) \wedge \neg p(b + x)) \big]$
     \end{center}
+  \item quantifiers
   \item \dots
   \end{itemize}
 
   {\footnotesize
-  E.g.: Alt-Ergo, Barcelogic, CVC4 (SVC, CVC, CVC-lite, CVC3),
-  MathSAT, OpenSMT, SMTInterpol, veriT, Yices, z3 \dots}
+    Alt-Ergo, Barcelogic, CVC4, MathSAT, OpenSMT, SMTInterpol,
+    veriT, Yices, z3 \dots}
 
 \end{frame}
 
@@ -147,6 +148,14 @@ In SMT-LIB 2.0 format:
 (exit)
 \end{verbatim}
 }
+
+\end{frame}
+
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
+
+\begin{frame}
+  \frametitle{Proofs and SMT: an history}
 
 \end{frame}
 
@@ -201,29 +210,136 @@ In SMT-LIB 2.0 format:
   \frametitle{From propositional SAT to SMT: in practice}
 
   \begin{itemize}
-  \item online decision procedures: theory checks propositional assignment on the fly
-  \item small explanations: unsat core of propositional assignment\\
-    discard classes of assignments (not one by one)
-  \item theory propagation: instead of guessing propositional variable
-    assignments, SAT solver assigns theory-entailed literals
+  \item online decision procedures\\
+    {\small theory checks propositional assignment on the fly}
+  \item small explanations\\
+    {\small unsat core of propositional assignment\\
+    discard classes of propositional assignments (not one by one)}
+  \item theory propagation\\
+    {\small instead of guessing propositional variable
+    assignments, SAT solver assigns theory-entailed literals}
   \item ackermannization, simplifications, and other magic
   \end{itemize}
 
 \end{frame}
 
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
+
+\begin{frame}
+  \frametitle{Theory and quantifier reasoning}
+
+  \begin{itemize}
+  \item theory reasoning techniques specific to theories
+  \item uninterpreted symbols and equality: congruence closure
+  \item linear arithmetic: mostly simplex
+  \item quantifiers: mostly instantiation
+  \end{itemize}
+
+  More details to come later (with proof production)
+
+\end{frame}
+
+%------------------------------------------------------------------- SECTION --
+%------------------------------------------------------------------------------
+
 \section{Proofs and SMT}
 
-  %% Theory and quantifier reasoning
-  %% \begin{itemize}
-  %% \end{itemize}
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
 
+\begin{frame}
+  \frametitle{From propositional SAT to SMT}
 
+  \begin{center}
+    \includegraphics[height=0.5\textheight]{SMT9.pdf}
+  \end{center}
 
-%% SMT proof: interleaving of SAT proof and theory reasoning proof
+\vspace*{-14pt}
+\begin{footnotesize}
+  Input: $a \leq b \wedge b \leq a + x \wedge x = 0 \wedge
+  \big[ f(a) \neq f(b) \vee (q(a) \wedge \neg q(b + x)) \big]$
 
+  \vspace*{2pt}
+  \onslide<2->{
+    To SAT solver: $p_{a \leq b} \wedge p_{b \leq a + x} \wedge p_{x = 0} \wedge
+    \big[ \neg p_{f(a) = f(b)} \vee (p_{q(a)} \wedge \neg p_{q(b + x)}) \big]$}
+
+  \vspace*{2pt}
+  \onslide<3->{New theory clause: $\neg p_{a \leq b} \vee \neg
+    p_{b \leq a + x} \vee \neg p_{x = 0} \vee p_{f(a) = f(b)}$}
+
+  \vspace*{2pt}
+  \onslide<4->{New theory clause: $\neg p_{a \leq b} \vee \neg
+    p_{b \leq a + x} \vee \neg p_{q(a)} \vee p_{q(b + x)}$}
+\end{footnotesize}
+
+\begin{block}{}
+  SMT proof: interleaving of SAT proof and theory reasoning proof
+\end{block}
+
+\end{frame}
 %% Challenge: collect enough information
 
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
 
+\begin{frame}
+  \frametitle{SMT in practice}
+
+  \begin{itemize}
+  \item online decision procedures\\
+    {\small theory checks propositional assignment on the fly}\\
+    {\it No influence on proof}
+  \item small explanations\\
+    {\small unsat core of propositional assignment\\
+    discard classes of propositional assignments (not one by one)}\\
+    {\it No influence on proof \small (small theory clauses)}
+  \item theory propagation\\
+    {\small instead of guessing propositional variable
+    assignments, SAT solver assigns theory-entailed literals}\\
+    {\it May need explanation (theory clause)}
+  \item ackermannization, simplifications, and other magic\\
+    {\it Sometimes cumbersome to prove}
+  \end{itemize}
+
+  \begin{block}{}
+    Challenge: collect enough information
+  \end{block}
+
+\end{frame}
+
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
+
+\begin{frame}
+  \frametitle{Decision procedures and proofs: congruence closure}
+
+\end{frame}
+
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
+
+\begin{frame}
+  \frametitle{Decision procedures and proofs: linear arithmetic \& simplex}
+
+\end{frame}
+
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
+
+\begin{frame}
+  \frametitle{Quantifiers and proofs}
+
+\end{frame}
+
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
+
+\begin{frame}
+  \frametitle{Combination of theories and proofs}
+
+\end{frame}
 
 %% Prooving Theory Lemmas
 
@@ -267,7 +383,7 @@ In SMT-LIB 2.0 format:
 
 %% Combination of theories
 
-\section{Example of SMT proofs}
+\section{Examples of SMT proofs}
 
 \begin{frame}[fragile]
 \frametitle{CVC4 proof (1/3)}
