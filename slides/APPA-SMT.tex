@@ -779,7 +779,119 @@ In SMT-LIB 2.0 format:
 
 \end{frame}
 
+\begin{frame}
+\frametitle{Lean Theorem Prover}
+  \begin{itemize}
+    \item New theorem prover started by L. de Moura and Soonho Kong.
+    \item {\small Contributors: Jeremy Avigad, Cody Roux, Floris van Doorn,\\ Parikshit Khanna}
+    \item {\small Many thanks to: Georges Gonthier, Nikhil Swamy, Vladimir Voevodsky}
+  \end{itemize}
+  \vspace*{12pt}
+  \begin{itemize}
+    \item Open source (Apache 2.0), {\small \url{https://github.com/leanprover/lean}}
+    \item {\color{red} can be used as an automatic prover (SMT), and as a proof assistant}
+    \item Based on {\color{red} Type Theory}, and incorporates ideas of many other systems:\\
+        Agda, Coq, HOL-Light, Isabelle, PVS, ...
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lean: Two Layers Architecture}
+  \begin{itemize}
+     \item {\color{red} First layer}: type checker, APIs for creating terms, environment, ...
+     \item Configuration options: e.g., impredicative Prop, proof irrelevance, ...
+     \item Universe polymorphism.
+     \item 5k lines of C++ code.
+  \end{itemize}
+  \vspace*{12pt}
+  \begin{itemize}
+     \item {\color{red} Second layer}: additional (trusted) components.
+     \item Example: inductive datatypes (extra 500 lines of code).
+     \item We currently support two flavors/instances: {\color{red} Standard} and {\color{red} HoTT}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lean: As a Library}
+  \begin{itemize}
+     \item Meant to be used as a {\color{red} standalone system} and as a {\color{red} software library}.
+     \item Extensive API and can be easily embedded in other systems.
+     \item SMT solvers can use the Lean API to create proof terms that can be independently checked.
+     \item APIs in C++, Lua (and Python coming soon).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lean: Proofs}
+  \begin{itemize}
+  \item More expressive language for encoding proofs provides several
+advantages.
+  \item {\color{red} We can easily add new ``proof rules'' without
+modifying the proof checker} (i.e., type checker).
+  \item Proof rules such as {\color{red} mp} and {\color{red} monotonicity} used in Z3 are just theorems in Lean.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Lean: Automation}
+  \begin{itemize}
+  \item First, define theory, then prove theorems/properties, then implement automation.
+  \item Example: suppose we are implementing a procedure for Presburger Arithmetic.
+  \end{itemize}
+
+{\tiny
+\begin{verbatim}
+       theorem add_comm (n m:nat) : n + m = m + n
+       := induction_on m
+         (trans (add_zero_right _) (symm (add_zero_left _)))
+         (take k IH,
+            calc n + succ k = succ (n+k) : add_succ_right _ _
+                        ... = succ (k + n) : {IH}
+                        ... = succ k + n : symm (add_succ_left _ _))
+\end{verbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Lean: Automation}
+  \begin{itemize}
+  \item Pre-processing steps such as Skolemization can be supported in
+a similar way.
+  \end{itemize}
+
+{\scriptsize
+\begin{verbatim}
+  theorem skolem_th {A : Type} {B : A -> Type} {P : forall x : A, B x -> Bool} :
+                (forall x, exists y, P x y) = (exists f, (forall x, P x (f x)))
+   := iff_intro
+       (assume H : (forall x, exists y, P x y), axiom_of_choice H)
+       (assume H : (exists f, (forall x, P x (f x))),
+          take x, obtain (fw : forall x, B x) (Hw : forall x, P x (fw x)), from H,
+            exists_intro (fw x) (Hw x))
+\end{verbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Lean: Pre-processing}
+  \begin{itemize}
+     \item The pre-processing ``issue'' is addressed by providing a {\color{red} generic rewriting
+engine} that can use any previously proved theorems.
+     \item The engine accepts two kinds of theorems: {\color{red} congruence theorems} and {\color{red} (conditional)
+equations}.
+     \item It also supports a $\lambda$-Prolog like engine.
+  \end{itemize}
+
+{\tiny
+\begin{verbatim}
+           theorem forall_or_distributel {A : Type} (p : Bool) (q : A -> Bool)
+                   : (forall x, q x \/ p) = ((forall x, q x) \/ p)
+           theorem forall_or_distributer {A : Type} (p : Bool) (q : A -> Bool)
+                   : (forall x, p \/ q x) = (p \/ forall x, q x)
+\end{verbatim}
+}
+
+\end{frame}
 
 
 \end{document}
-
