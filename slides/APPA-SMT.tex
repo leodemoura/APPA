@@ -399,7 +399,8 @@ In SMT-LIB 2.0 format:
   \frametitle{Theory and quantifier reasoning}
 
   \begin{itemize}
-  \item theory reasoning techniques specific to theories
+  \item theory reasoning techniques specific to theories\dots
+  \item \dots but (mostly) interact similarly with the SAT solver
   \item uninterpreted symbols and equality: congruence closure
   \item linear arithmetic: mostly simplex
   \item quantifiers: mostly instantiation
@@ -482,7 +483,45 @@ In SMT-LIB 2.0 format:
 %------------------------------------------------------------------------------
 
 \begin{frame}
-  \frametitle{Decision procedures and proofs: congruence closure}
+  \frametitle{Theory reasoning proofs}
+  \framesubtitle{Congruence closure}
+  Consider the terms: $a$, $b$, $c$, $f(a)$, $f(b)$
+
+  \onslide<3->{And literals:} $\onslide<3->{a = c}\onslide<4->{, c = b}\onslide<6->{, f(a) \neq f(b)}$
+
+\begin{minipage}{.4\textwidth}
+  \begin{center}
+\only<1>{\includegraphics[width=0.6\textwidth]{SMT-proof-CC0.pdf}}%
+\only<2>{\includegraphics[width=0.6\textwidth]{SMT-proof-CC1.pdf}}%
+\only<3>{\includegraphics[width=0.6\textwidth]{SMT-proof-CC2.pdf}}%
+\only<4>{\includegraphics[width=0.6\textwidth]{SMT-proof-CC3.pdf}}%
+\only<5>{\includegraphics[width=0.6\textwidth]{SMT-proof-CC4.pdf}}%
+\only<6->{\includegraphics[width=0.6\textwidth]{SMT-proof-CC5.pdf}}%
+  \end{center}
+\end{minipage}%
+\begin{minipage}{.55\textwidth}
+\small
+\begin{itemize}
+\item<2-> each term in its equivalence class
+\item<3-> equality $\longrightarrow$ class merge
+\item<5-> congruence $\longrightarrow$ class merge
+\item<6-> detect conflicts
+\end{itemize}
+\end{minipage}
+
+\vspace*{10pt}
+\onslide<7->{In practice: efficient (merge, congruence and conflict detection)}
+
+\vspace*{10pt}
+\onslide<8->{Theory reasoning proof, from graph:}
+{\small
+\begin{itemize}
+\item<9-> conflict $f(a) \neq f(b)$ with an implied literal
+\item<10-> entailed by congruence: $a \neq b \vee f(a) = f(b)$
+\item<11-> and $a = b$ comes from transitivity: $a \neq c \vee c \neq b \vee a = b$
+\item<12-> \emph{resolution} compute the theory clause: $a \neq c \vee c \neq b \vee f(a) = f(b)$
+\end{itemize}}
+
 
 \end{frame}
 
@@ -490,7 +529,71 @@ In SMT-LIB 2.0 format:
 %------------------------------------------------------------------------------
 
 \begin{frame}
-  \frametitle{Decision procedures and proofs: linear arithmetic \& simplex}
+  \frametitle{Theory reasoning proofs}
+  \framesubtitle{Combination of theories}
+
+\onslide<1->{Theory reasoning proof, with combination of theories:}
+{\small
+\begin{itemize}
+\item<1-> conflict $f(a) \neq f(b)$ with an implied literal
+\item<2-> entailed by congruence: $a \neq b \vee f(a) = f(b)$
+\item<3-> and $a = b$ comes from another theory clause: $\neg a \leq b \vee \neg b \leq a + x \vee x \neq 0 \vee a = b$
+\item<4-> \emph{resolution} compute the theory clause: $\neg a \leq b \vee \neg b \leq a + x \vee x \neq 0 \vee f(a) = f(b)$
+\end{itemize}}
+
+\onslide<5->{
+Over-simplification :
+\begin{itemize}
+\item delayed theory combination
+\item model-based combination 
+\end{itemize}}  
+
+\end{frame}
+
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
+
+\begin{frame}
+  \frametitle{Theory reasoning proofs}
+  \framesubtitle{Linear arithmetic}
+
+  \begin{itemize}
+  \item Many linear arithmetic decision procedures based on simplex
+  \item Simplex detects inconsistency
+  \item Farkas lemma can be used to provide certificate
+  \end{itemize}
+
+\begin{minipage}{.4\textwidth}
+  \begin{center}
+\only<1>{\includegraphics[width=0.8\textwidth]{SMT-proof-LRA0.pdf}}%
+\only<2>{\includegraphics[width=0.8\textwidth]{SMT-proof-LRA1.pdf}}%
+\only<3>{\includegraphics[width=0.8\textwidth]{SMT-proof-LRA2.pdf}}%
+\only<4->{\includegraphics[width=0.8\textwidth]{SMT-proof-LRA3.pdf}}%
+  \end{center}
+\end{minipage}%
+\begin{minipage}{.55\textwidth}
+  \begin{itemize}
+  \item \onslide<2->{$y>1$}\onslide<3->{, $x < 1$}\onslide<4->{, $y \leq x$}
+  \item<5-> inconsistency\\
+  \onslide<6->{
+    \begin{tabular}{lc}
+          & $x < 1$\\
+      $+$ & $y \leq x$\\
+      $-$ & $y>1$ \\
+      \hline
+      & $0 < 0$
+    \end{tabular}}
+  \item<7-> Clause: $\neg y>1 \vee \neg x < 1 \vee \neg y \leq x$
+  \end{itemize}
+\end{minipage}
+
+\onslide<8->
+{And also
+\begin{itemize}
+\item integers: branches, cuts
+\item simplifications, bound propagations\dots
+\end{itemize}
+}
 
 \end{frame}
 
@@ -500,35 +603,25 @@ In SMT-LIB 2.0 format:
 \begin{frame}
   \frametitle{Quantifiers and proofs}
 
-\end{frame}
-
-%--------------------------------------------------------------------- SLIDE --
-%------------------------------------------------------------------------------
-
-\begin{frame}
-  \frametitle{Combination of theories and proofs}
+  \begin{itemize}
+  \item
+    Quantifiers mainly come from instantiation
+  \item
+    Proof is simply
+    \begin{displaymath}
+      \neg \forall x\, \varphi(x) \vee \varphi(t)
+    \end{displaymath}
+  \item
+    $\forall x \varphi(x)$ is an abstract Boolean variable for the SAT solver
+  \item
+    Resolution, again
+  \item
+    Skolemization is a problem though
+  \end{itemize}
 
 \end{frame}
 
 %% Prooving Theory Lemmas
-
-%% Congruence closure
-
-%%  $a$, $b$, $f(a)$ and $f(b)$, the initial partition would be $\big\{\{a\},
-%% \{b\}, \{f(a)\}, \{f(b)\}\big\}$
-
-%% $\big\{\{a, b\}, \{f(a), f(b)\}\big\}$
-
-%% $f(a) \neq f(b)$
-
-%%  keeping a trace of which (two) terms are merged
-%% and why (i.e.\ either because of a congruence, or an asserted equality).  This
-%% information can be stored in an acyclic undirected\footnote{For efficiency
-%%   reasons, modern congruence closure alogrithms actually use a directed
-%%   graph~\cite{Nieuwenhuis6}.} graph
-
-
-
 
 %% Linear Arithmetic
 
@@ -539,20 +632,31 @@ In SMT-LIB 2.0 format:
 
 
 
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
 
-%% Other theories
-%% \begin{itemize}
-%% \item arrays
-%% \item inductive data types
-%% \item bit-vectors
-%% \item strings
-%% \item non-linear arithmetic
-%% \end{itemize}
+\begin{frame}
+  \frametitle{Other theories}
 
 
-%% Combination of theories
+Other theories
+\begin{itemize}
+\item arrays
+\item inductive data types
+\item bit-vectors
+\item strings
+\item non-linear arithmetic
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------------- SECTION --
+%------------------------------------------------------------------------------
 
 \section{Examples of SMT proofs}
+
+%--------------------------------------------------------------------- SLIDE --
+%------------------------------------------------------------------------------
 
 \begin{frame}[fragile]
 \frametitle{CVC4 proof (1/3)}
