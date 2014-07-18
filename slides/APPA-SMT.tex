@@ -16,7 +16,7 @@
 \usefonttheme{professionalfonts}
 
 \usepackage{hyperref}
-\usepackage[french]{babel}
+\usepackage[english]{babel}
 \usepackage{times}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -35,6 +35,7 @@
 \newcommand{\mth}[1]{{\color{dgreen}\ensuremath{#1}}}
 \newcommand{\hd}[1]{{\color{purple}\bf{#1}}}
 \newcommand{\str}[1]{\mathcal{#1}}
+\setbeamerfont{footnote}{size=\tiny}
 
 \title{Proofs in Satisfiability Modulo Theories}
 
@@ -175,84 +176,108 @@ given formula \mth{\varphi}.
 \begin{frame}
   \frametitle{Proofs and SMT: a history}
 
+\begin{block}{First Attempts}
 \begin{itemize}
-\item Cooperating Validity Checker (CVC)~\cite{SBD02} was the first SMT solver to
-tackle the problem of proof-production.
+\item Cooperating Validity Checker (CVC), 2002\footnote{\tiny Stump, Barrett,
+  Dill. {\bf CVC: A Cooperating Validity Checker}, CAV '02.}
+\begin{itemize}
+\item First SMT solver to attempt proof-production
+\item Wanted to be able to independently certify results
+\item Aid in finding and correcting correctness bugs
+\item Surprisingly - most important contribution was use in producing
+  explanations of inconsistency
 \end{itemize}
-%% The motivation for producing proofs was primarliy that it would provide a means
-%% of independently certifying a correct result,
-%% so that users would not have to rely on the correctness of a large and
-%% frequently-changing code base.  Another motivation was the hope that
-%% proof-production could aid in finding and correcting nasty bugs in CVC.
-%% In retrospect, however, the most important and lasting contribution of CVC's
-%% proof infrastructure was that it enabled an efficient integration of a SAT
-%% solver for Boolean reasoning.  Initial attempts to use a SAT solver within
-%% CVC suffered from poor performance because the theory-reasoning part of CVC
-%% was being used as a black box, simply flagging a particular branch of the SAT
-%% search as unsatisfiable.  Without additional information (i.e. a conflict
-%% clause specifying a small reason for the unsatisfiability), the SAT solver could
-%% not benefit from clause learning or non-chronlogical backjumping and frequently
-%% failed to terminate, even on relatively easy problems.  During a conversation
-%% with Cormaq Flanagan, the idea of using the proof infrastructure to compute
-%% conflict clauses emerged, and this was the key to finally making the
-%% integration with SAT efficient (see~\cite{BDS02-CAV02} for more details).  The
-%% technique was implemented in CVC, as well as in Flanagan's solver called
-%% Verifun~\cite{FJO+03} and this laid the groundwork for the so-called DPLL(T)
-%% architecture~\cite{NieOT-JACM-06} used in nearly every modern SMT solver.
-
-%% The next important development in proof-producing SMT solvers was the
-%% early exploration of using proofs to communicate with skeptical proof
-%% assistants.  The first work in this area~\cite{MBG06} was a translator designed
-%% to import proofs from CVC Lite~\cite{BB04} (the successor to CVC) into HOL
-%% Lite~\cite{H96}, a proof assistant for higher-order logic with a small trusted
-%% core set of rules.  The goals of this work were two-fold: to provide access to
-%% efficient decision procedures within HOL Lite and to enable the use of HOL Lite
-%% as a proof-checker for CVC Lite.  Shortly thereafter~\cite{FMM+06,HCF+07}, a similar effort was
-%% made to integrate the haRVey SMT solver~\cite{DR03} with the Isabelle/HOL prove
-%% assistant~\cite{NPW02}. These early efforts demonstrated the feasibility of such
-%% integrations.
-
-%% In 2008, an effort was made to leverage this work to certify that the
-%% benchmarks in the SMT-LIB library were correctly labeled (benchmarks are
-%% labeled with a \emph{status} that can be ``sat'', ``unsat'', or ``unknown'',
-%% indicating the expected result when solving the benchmark).  The certification
-%% was done using CVC3~\cite{BT07} (the successor to CVC Lite) and
-%% HOL Lite~\cite{GB08}.  Many of the benchmarks in the library were certified and
-%% additionally, a bug in the library was found as two benchmarks that had been
-%% labeled satisfiable were certified as unsatisfiable.
-%% The same work reports briefly on an anecdote that further validates the value
-%% of proof-production.  A latent bug in CVC3 was revealed during the 2007
-%% SMT-COMP competition.  Using HOL Light as a proof-checker, the cause of the bug
-%% was quickly detected as a faulty proof rule.  The bug in the proof rule had
-%% persisted for years and would have been very difficult to detect without the
-%% aid of the proof-checker.
-
-%% The same year also marked the appearance of proof-production capabilities in
-%% several additional SMT solvers.  Fx7 was a solver written by Micha{\l} Moskal
-%% which emphasized quantified reasoning and fast proof-checking~\cite{M08}.
-%% MathSAT4 used an internal proof engine to enable the generation of
-%% unsatisfiable cores and interpolants~\cite{BCF+08}.  Z3 began supporting
-%% proof-production as well~\cite{dMB08}, though its use of a single rule for
-%% theory lemmas meant that checking or reconstructing Z3 proofs requires the
-%% external checker to have some automated reasoning capability (see
-%% Section~\ref{sec:z3}).  Finally, development on veriT, the successor to haRVey,
-%% began in earnest~\cite{BdOD+09}, with proof-production as a primary goal (see Section~\ref{sec:veriT}).
-%% Another important community development around this time was an attempt to
-%% converge on a standard proof format for SMT-LIB.  We discuss this effort in
-%% Section~\ref{sec:format} below.
-
-%% At the time of this writing, the state of proofs in SMT are in flux.  A few
-%% groups are making a serious effort to develop solvers (e.g. CVC4 and veriT)
-%% capable of producing self-contained, independently-checkable proofs, though
-%% these are in progress and no standard format has been agreed upon.  Other
-%% solvers (like Z3) produce a trace of deduction steps, but reconstructing a full
-%% proof from these steps requires additional search in some cases.  Still other
-%% solvers (e.g. MathSAT, SMTInterpol), use proof technology primarily to drive
-%% additional solver functionality, like computing explanations, interpolants, or
-%% unsatisfiable cores.  In this paper, we focus on tools that produce proofs with
-%% the goal of having them be checked or translated by an external tool.
+\end{itemize}
+\end{block}
 
 \end{frame}
+
+\begin{frame}\frametitle{Proofs and SMT: a history}
+
+\begin{block}{Communication with skeptical proof assistants}
+\begin{itemize}
+\item CVC Lite, 2005\footnote{\tiny McLaughlin,
+  Barrett, Ge. {\bf Cooperating Theorem Provers: A Case Study Combining
+    HOL-Light and CVC Lite}, PDPAR '05.}
+\begin{itemize}
+\item Successor to CVC, ad hoc proof format
+\item Translator from proof format to HOL Light
+\item Provide access to efficient decision procedures within HOL Light
+\item And enable use of HOL Light as a proof-checker for CVC Lite
+\end{itemize}
+\item haRVey, 2006\footnote{\tiny
+Fontaine, Marion, Merz, Nieto, Tiu. {\bf Expressiveness + Automation +
+  Soundness: Towards Combining SMT Solvers and Interactive Proof Assistants},
+TACAS '06.}
+\begin{itemize}
+\item Integration with Isabelle/HOL
+\end{itemize}
+\item CVC3, 2008\footnote{\tiny
+Ge, Barrett. {\bf Proof Translation and SMT-LIB Benchmark Certification: A
+  Preliminary Report}, SMT '08.}
+\begin{itemize}
+\item Effort to certify SMT-LIB benchmark library
+\item Found benchmarks with incorrect status
+\item Found bug in CVC3
+\end{itemize}
+\end{itemize}
+\end{block}
+
+\end{frame}
+
+\begin{frame}\frametitle{Proofs and SMT: a history}
+
+\begin{block}{Additinal solvers support proofs}
+\begin{itemize}
+\item Fx7, 2008\footnote{\tiny Moskal. {\bf Rocket-Fast Proof Checking for SMT
+    Solvers}, TACAS '08.}
+\begin{itemize}
+\item Quantified reasoning, custom proof-checker
+\end{itemize}
+\item MathSAT4, 2008\footnote{\tiny Bruttomesso, Cimatti, Franz\'{e}n, Griggio,
+  Sebastiani. {\bf The MathSAT 4 SMT Solver}, CAV '08.}
+\begin{itemize}
+\item Internal proof engine for unsat cores and interpolants
+\end{itemize}
+\item Z3, 2008\footnote{\tiny de Moura, Bj{\o}rner. {\bf Proofs and
+    Refutations, and Z3}, LPAR '08.}
+\begin{itemize}
+\item Proof traces - single rule for theory lemmas
+\end{itemize}
+\item veriT, 2009\footnote{\tiny Bouton, de Oliveira, D\'{e}harbe,
+  Fontaine. {\bf veriT: An Open, Trustable and Efficient SMT-Solver}, CADE
+  '09.}
+\begin{itemize}
+\item Proof production a primary goal in veriT
+\end{itemize}
+\end{itemize}
+\end{block}
+
+\end{frame}
+
+\begin{frame}\frametitle{Proofs and SMT: a history}
+
+\begin{block}{Current Status}
+\begin{itemize}
+\item No agreed-upon format for proofs in SMT
+\item Solvers targeting self-contained, independently-checkable proofs
+\begin{itemize}
+\item CVC4, veriT
+\end{itemize}
+\item Proof traces
+\begin{itemize}
+\item Z3
+\end{itemize}
+\item Solvers using proof technology to drive other features
+  (e.g. interpolants)
+\begin{itemize}
+\item MathSAT, SMTInterpol
+\end{itemize}
+\end{itemize}
+\end{block}
+
+\end{frame}
+
 
 \begin{frame}
   \frametitle{Satisfiability Modulo Theories $\approx$ SAT + expressiveness}
@@ -875,12 +900,50 @@ Other theories
 
 \section{Applications and Challenges}
 
-\begin{frame}
-  
-  \begin{itemize}
-    \item A standard for proofs
-  \end{itemize}
+\begin{frame}\frametitle{Applications}
 
+\begin{block}{Current Applications}
+\begin{itemize}
+\item Proof reconstruction within skeptical proof assistants
+\footnote{
+\tiny Keller. {\bf A Matter of Trust: Skeptical Communication Between Coq and
+  External Provers}, PhD Thesis, Ecole Polytechnique, 2013.}$^{,}$
+\footnote{
+\tiny Armand, Faure, Gr{\'e}goire, Keller, Thery, Werner. {\bf A Modular
+  Integration of SAT/SMT Solvers to Coq through Proof Witnesses}, CPP '11.}$^{,}$
+\footnote{
+\tiny B{\"o}hme. {\bf Proof Reconstruction for Z3 in Isabelle/HOL}, SMT'09.}
+
+\item Interpolant generation
+\footnote{
+\tiny Reynolds, Tinelli, Hadarean. 
+{\bf Certified Interpolant Generation for EUF}, SMT '11.}$^{,}$
+\footnote{
+\tiny Hofferek, Gupta, K\"{o}nighofer, Jiang, Bloem.
+{\bf Synthesizing Multiple Boolean Functions using Interpolation on a Single
+  Proof}, FMCAD '13.}$^{,}$
+\footnote{
+\tiny McMillan.
+{\bf Interpolants from Z3 Proofs}, FMCAD '11.}
+
+\item Unsat core computation
+\footnote{\tiny D\'{e}harbe, Fontaine, Guyot, Voisin.
+{\bf SMT Solvers for Rodin}, Abstract State Machines '12.}
+
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}\frametitle{Challenges}
+
+\begin{block}{Challenges}
+\begin{itemize}
+\item Challenge to collect and store proof information efficiently
+\item Producing proofs for sophisticated preprocessing techniques
+\item Producing proofs for modules that use external tools
+\item Standardizing a proof format
+\end{itemize}
+\end{block}
 \end{frame}
 
 \begin{frame}
