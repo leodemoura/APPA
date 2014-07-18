@@ -1026,7 +1026,7 @@ modifying the proof checker} (i.e., type checker).
 a similar way.
   \end{itemize}
 
-{\scriptsize
+{\tiny
 \begin{verbatim}
   theorem skolem_th {A : Type} {B : A -> Type} {P : forall x : A, B x -> Bool} :
                 (forall x, exists y, P x y) = (exists f, (forall x, P x (f x)))
