@@ -1,0 +1,159 @@
+----------------------- REVIEW 1 ---------------------
+PAPER: 4
+TITLE: Proofs in Satisfiability Modulo Theories
+AUTHORS: Clark Barrett, Leonardo De Moura and Pascal Fontaine
+
+REVIEWER'S CONFIDENCE: 4 (high)
+
+----------- REVIEW -----------
+The article starts with a short description of SMT solvers, their capabilities
+and use cases, and the input format SMT-LIB 2. Then it proceeds to the notion
+of SMT unsatisfiability proofs as resolution trees (possibly with cuts
+introducing theory lemmas). The issues tackled afterward is how to represent
+those proofs, and how to efficiently check them.
+
+After this introduction follows a more thorough description of proof generation
+and checking, in general and, after a survey of the domain, in several SMT
+solvers (CVC4, VeriT, and Z3).  A modern solver needs to generate theory lemmas
+(tautologies in the theory, such as "not (a=b) or f(a)=f(b)") for clause
+learning, and can reuse them in a refutation. Conflict clauses from CDCL form a
+resolution tree that leads to the empty clause in case of unsatisfiability. 
+
+All three solvers use a different approach:
+- CVC4 builds on LFSC, an extension of Martin-Löf type theory with small pieces
+  of trusted ML code. The ML functions are used for evaluating and normalizing
+  terms within the type-checker, without bloating too much the proof itself.
+- VeriT uses a SMT-LIB-like format with S-expressions, expressing a resolution
+  DAG with named clauses and standard rules for inference steps. This format
+  is a candidate to standardization.
+- Z3 uses internal proof objects, attached to clauses, that justify the clause
+  in a natural deduction style (similar to intuitionistic sequents)
+  Steps performed by theory solvers remember enough information and hints to
+  be checked afterwards if needed. Since proof checking is done within Z3
+  some details can be recovered by search rather than specified within
+  proof objects.
+
+Finally, a new prover, Lean, is presented - likely for its unusual combination
+of features from both interactive proof assistants, and SMT-like proving.
+Featuring a kernel-of-trust (a type-checker), it builds proof objects from
+the ground up, and works in a much more powerful logic than the previous
+systems (dependently-typed higher order logic).
+
+## Remarks
+
+The paper is well-written and succeeds in explaining the ins and outs
+of proofs for SMT (assuming some basic knowledge of SMT solvers). In
+particular, the explanation of how congruence closure (and associated lemmas)
+works is very clear. The other SMT solvers I know a bit are alt-ergo and yices,
+none of which outputs proofs, so I think the paper is exhaustive enough.
+The technical details should be accessible to readers that already have an idea
+of how CDCL and DPLL(T) work (mainly to understand why proofs are based
+on resolution).
+
+Some additional discussions of the compared benefits and drawbacks of how
+the three solvers (CVC4, VeriT and Z3) deal with proofs would be nice.  For
+instance, is it easier to transform a proof from VeriT than a proof in LFSC?
+How hard is it to write an external proof checker in each case? Would it
+be possible to use those proof formats (especially LFSC) to represent and check
+proofs from other kinds of solvers (first-order TPTP provers, in particular)?
+The treatment of skolemization (and similar equisatisfiability-preserving
+transformations) could also be more detailed.
+
+Typos:
+  - page 3, 2.1, "satisifiability"
+
+DONE
+
+  - page 6, 3, paragraph 2, "primarliy"
+
+DONE
+
+  - page 9, paragraph 1, "speical"
+
+DONE
+
+ALSO SPELL CHECKED WHOLE DOCUMENT, WHICH FIXED SOME MORE TYPOS
+
+## Extrapolation
+
+The TPTP community doesn't (yet?) have a strong stance on how to represent
+proofs. The situation is quite similar to the SMT world: a common input language
+(TPTP) exists and is widely used - an output format, "TSTP", also exists,
+but its flexibility makes it suitable only for traces rather than
+machine-checkable proofs. The spectrum of proof techniques is also wider
+(tableaux, superposition, and more exotic systems), hence the difficulty
+to settle on a rigid proof format.
+
+I found the LFSC format (which is explained in a linked paper) very
+interesting. It looks flexible enough for representing most proofs even
+in first-order logic with theories (which is already what SMT deal with)
+without requiring the proof checker to know those theories in advance. Proofs
+are tuned to the specific theories at hand using a small trusted program,
+so I think a given (family of) prover(s) could use the same trusted code for
+all its proof (increasing trust).
+
+(disclaimer: this work is from my team)
+It reminds me of a similar grafting of a computation system on top of
+dependent types: Dedukti [1] based on the λΠ-modulo calculus (Martin-Löf +
+rewriting). Perhaps some connection between LFSC and Dedukti is possible. Some
+encodings of first-order resolution proofs into Dedukti exist [2], a parallel
+may be drawn with CVC4.
+
+[1] https://www.rocq.inria.fr/deducteam/Dedukti/index.html
+[2] Guillaume Burel. A Shallow Embedding of Resolution and Superposition Proofs
+    into the lamdba-Pi-Calculus Modulo, presented at the PxTP'13 workshop
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 4
+TITLE: Proofs in Satisfiability Modulo Theories
+AUTHORS: Clark Barrett, Leonardo De Moura and Pascal Fontaine
+
+REVIEWER'S CONFIDENCE: 5 (expert)
+
+----------- REVIEW -----------
+I think the paper is really excellent in its current state and a perfect start for people (also from other fields) getting a first impression on proofs in SMT. I also had a undergrad student (who recently starting working on a related topic) telling me that the paper was a really good literature for her as well. So no improvement suggestions considering the content from my side.
+
+Minor errors:
+
+Page 5:
+that the theories be stably-infitine and -> theories are stably-infinite
+
+DONE
+
+Page 6:
+primarliy -> primarily
+
+DONE
+
+Page 7:
+prove assistant -> proof assistant
+the state of proofs in SMT are in flux -> is in flux
+goal of having them be checked -> of having them checked
+
+DONE
+
+Page 8:
+The topic of proof formats featured heavily <- I'm not sure. Is this a semantically correct expression?
+
+CHANGED TO "The topic of proof formats was central"
+
+turned out to not be very efficient -> not to be
+
+DONE
+
+Page 9:
+in a speical -> special
+
+DONE
+
+Page 11:
+Clauses c2 to c8 <- the font/style for c2 and c8 differs from each other.
+
+DONE
+
+Page 12:
+Each proof rule has consequent -> has a consequent
+
+DONE
+
