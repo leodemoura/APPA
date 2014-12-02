@@ -259,8 +259,8 @@ by transitivity using asserted equalities and congruences, then there is a
 (e.g.\ $g(a,c) = g(b,d)$), it suffices to first prove the equality of the
 corresponding arguments ($a=b$, $c=d$) and use an instance of the congruence
 axiom schema, e.g.\ $(a=b \wedge c=d) \Rightarrow g(a,c) = g(b,d)$.  Proof
-steps (i.e.\ an equality being the consequence of transitivity, and a congruence
-instance) are again simply connected using Boolean resolution.
+steps (i.e.\ an equality being the consequence of transitivity, and congruence
+instances) are again simply connected using Boolean resolution.
 
 Another very important theory supported by many SMT solvers is linear
 arithmetic on reals.  Decision procedures for this theory are often based on
@@ -1168,7 +1168,7 @@ generates Boolean resolution proofs, and, as long as the theories in the combina
 produce certificates, these can also be integrated using Boolean resolution.
 There are, however, challenges both small and large related to SMT
 proofs.  First, it is necessary to collect and store all the necessary
-information to produce the final proof; this is mostly a technical problem, but,
+information to produce the final proof; this is mostly a technical problem, but
 it can be a bottleneck during proof search.  Indeed, this may involve an
 enormous amount of bookkeeping, and, if using main memory, may quickly
 exhaust the available memory.  Second, SMT often relies on many preprocessing
