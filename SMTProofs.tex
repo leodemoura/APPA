@@ -615,8 +615,13 @@ all of the pieces together into a full proof.
 
 As mentioned above, the proof format used by CVC4 is LFSC.  A full description
 of LFSC is well beyond the scope of this paper, but a good introduction can be
-found in~\cite{SOR+13}.
-Figure~\ref{fig:lfsc} shows an LFSC proof for the example from
+found in~\cite{SOR+13}.  LFSC is versatile, and can be used to precisely represent proofs generated in various contexts.  This makes it particularly suitable for SMT proofs, where parts of
+proofs may come from various, very different reasoners.  The
+philosophy behind LFSC is quite similar to some other
+approaches, e.g.~\cite{B13}.  LFSC has a stand-alone efficient proof-checker, which can be used for any proof
+system expressible in LFSC.  The input to the proof checker is an LFSC
+proof signature file (e.g.\ specifying the proof rules for a particular theory) and the proof, and the checker checks that the proof correctly
+uses the rules in the signature.  Figure~\ref{fig:lfsc} shows an LFSC proof for the example from
 Section~\ref{sec:intro}.
 The first section states what is being proved: given real numbers $a$, $b$, and
 $x$, function $f$ and predicate $q$, together with four proofs each justifying
