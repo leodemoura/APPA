@@ -2,6 +2,7 @@
 
 \usepackage{url,amsmath,amssymb}
 \usepackage{color}
+\usepackage[utf8]{inputenc}
 
 % Dissemination Plans and Important Dates:
 
@@ -204,7 +205,7 @@ Section~\ref{sec:concl} concludes.
 %\Note{Pascal}
 
 Since the core of SMT solvers is mainly a SAT solver adapted for the needs of
-SMT, the core of the proof is also a SAT proof.  We will refer to the other
+SMT, the core of the proof is also a SAT proof.  We refer to the other
 article by Marijn Heule, in the same volume, for more details on SAT solving.
 Let us just recall that SAT solvers work on a conjunctive normal form, and build
 a (partial) assignment using Boolean propagations and decisions.  If building
@@ -652,9 +653,9 @@ which define the rules for resolution, theory reasoning, CNF conversion etc.
 (% @F3 (th_holds (= Real (a_var_real x) (a_real 0/1)))
 (% @F4 (th_holds (or (not (= Real (apply _ _ f (a_var_real a)) (apply _ _ f (a_var_real b)))) 
                      (and (= Bool (apply _ _ q (a_var_real a)) btrue)
-                          (= Bool (apply _ _ q (+_Real (a_var_real b) (a_var_real x))) bfalse))))
+                          (= Bool (apply _ _ q (+_Real (a_var_real b) (a_var_real x)))
+                             bfalse))))
 (: (holds cln)
-
 (decl_atom (<=_Real (a_var_real a) (a_var_real b)) (\ v1 (\ a1
 (decl_atom (<=_Real (a_var_real b) (+_Real (a_var_real a) (a_var_real x))) (\ v2 (\ a2
 (decl_atom (= Real (a_var_real x) (a_real 0/1)) (\ v3 (\ a3
@@ -665,8 +666,8 @@ which define the rules for resolution, theory reasoning, CNF conversion etc.
 (decl_atom (<=_Real (a_var_real b) (a_var_real a)) (\ v8 (\ a8
 (decl_atom (= Real (a_var_real a) (+_Real (a_var_real b) (a_var_real x))) (\ v9 (\ a9
 (decl_atom (and (= Bool (apply _ _ q (a_var_real a)) btrue)
-                (= Bool (apply _ _ q (+_Real (a_var_real b) (a_var_real x))) bfalse)) (\ v10 (\ a10
-
+                (= Bool (apply _ _ q (+_Real (a_var_real b) (a_var_real x))) bfalse))
+           (\ v10 (\ a10
 ; CNFication
 (satlem _ _ (asf _ _ _ a1 (\ l1 (clausify_false (contra _ @F1 l1)))) (\ C1 
 (satlem _ _ (asf _ _ _ a2 (\ l2 (clausify_false (contra _ @F2 l2)))) (\ C2 
@@ -675,11 +676,11 @@ which define the rules for resolution, theory reasoning, CNF conversion etc.
   (and_elim_1 _ _ (or_elim_1 _ _ (not_not_intro _ l5) @F4)) l6)))))) (\ C4
 (satlem _ _ (ast _ _ _ a5 (\ l5 (asf _ _ _ a7 (\ l7 (clausify_false (contra _
   (and_elim_2 _ _ (or_elim_1 _ _ (not_not_intro _ l5) @F4)) l7)))))) (\ C5
-
 ; Theory lemmas
 ; ~a4 ^ a1 ^ a8 => false
-(satlem _ _ (asf _ _ _ a4 (\ l4 (ast _ _ _ a1 (\ l1 (ast _ _ _ a8 (\ l8 (clausify_false (contra _ l1
- (or_elim_1 _ _ (not_not_intro _ (<=_to_>=_Real _ _ l8)) (not_=_to_>=_=<_Real _ _ l4)))))))))) (\ C6 
+(satlem _ _ (asf _ _ _ a4 (\ l4 (ast _ _ _ a1 (\ l1 (ast _ _ _ a8
+ (\ l8 (clausify_false (contra _ l1 (or_elim_1 _ _ (not_not_intro _ (<=_to_>=_Real _ _ l8))
+ (not_=_to_>=_=<_Real _ _ l4)))))))))) (\ C6 
 ; a2 ^ a3 ^ ~a8 => false
 (satlem _ _ (ast _ _ _ a2 (\ l2 (ast _ _ _ a3 (\ l3 (asf _ _ _ a8 (\ l8 (clausify_false
  (poly_norm_>= _ _ _ (<=_to_>=_Real _ _ l2) (pn_- _ _ _ _ _ (pn_+ _ _ _ _ _
@@ -702,7 +703,6 @@ which define the rules for resolution, theory reasoning, CNF conversion etc.
 (satlem _ _ (ast _ _ _ a9 (\ l9 (ast _ _ _ a6 (\ l6 (ast _ _ _ a7 (\ l7 (clausify_false
  (contra _ (trans _ _ _ _ (trans _ _ _ _ (symm _ _ _ l6) (cong _ _ _ _ _ _
   (refl _ q) l9)) l7) b_true_not_false)))))))) (\ C10
-
 ; Resolution proof
 (satlem_simplify _ _ _ (R _ _ (Q _ _ (Q _ _ C6 C1 v1) (Q _ _ (Q _ _ C7 C2 v2) C3 v3) v8)
 (Q _ _ (Q _ _ (Q _ _ (Q _ _ (R _ _ C9 C10 v9) C3 v3) C4 v6) C5 v7) C8 v5) v4)
@@ -765,15 +765,19 @@ proofs with quantifiers use quantifier instantiation rules.
 (set .c19 (resolution :clauses (.c7 .c17) :conclusion ((not (q (+ b x))))))
 (set .c20 (eq_congruent_pred :conclusion ((not (= a (+ b x))) (not (q a)) (q (+ b x)))))
 (set .c21 (resolution :clauses (.c20 .c18 .c19) :conclusion ((not (= a (+ b x))))))
-(set .c22 (la_disequality :conclusion ((or (= a (+ b x)) (not (<= a (+ b x))) (not (<= (+ b x) a))))))
-(set .c23 (or :clauses (.c22) :conclusion ((= a (+ b x)) (not (<= a (+ b x))) (not (<= (+ b x) a)))))
-(set .c24 (resolution :clauses (.c23 .c21) :conclusion ((not (<= a (+ b x))) (not (<= (+ b x) a)))))
+(set .c22 (la_disequality :conclusion
+            ((or (= a (+ b x)) (not (<= a (+ b x))) (not (<= (+ b x) a))))))
+(set .c23 (or :clauses (.c22) :conclusion
+            ((= a (+ b x)) (not (<= a (+ b x))) (not (<= (+ b x) a)))))
+(set .c24 (resolution :clauses (.c23 .c21) :conclusion
+            ((not (<= a (+ b x))) (not (<= (+ b x) a)))))
 (set .c25 (eq_congruent_pred :conclusion
             ((not (= a b)) (not (= (+ a x) (+ b x))) (<= a (+ b x)) (not (<= b (+ a x))))))
 (set .c26 (eq_congruent :conclusion ((not (= a b)) (not (= x x)) (= (+ a x) (+ b x)))))
 (set .c27 (eq_reflexive :conclusion ((= x x))))
 (set .c28 (resolution :clauses (.c26 .c27) :conclusion ((not (= a b)) (= (+ a x) (+ b x)))))
-(set .c29 (resolution :clauses (.c25 .c28) :conclusion ((not (= a b)) (<= a (+ b x)) (not (<= b (+ a x))))))
+(set .c29 (resolution :clauses (.c25 .c28) :conclusion
+            ((not (= a b)) (<= a (+ b x)) (not (<= b (+ a x))))))
 (set .c30 (resolution :clauses (.c29 .c3 .c15) :conclusion ((<= a (+ b x)))))
 (set .c31 (resolution :clauses (.c24 .c30) :conclusion ((not (<= (+ b x) a)))))
 (set .c32 (la_generic :conclusion ((<= (+ b x) a) (not (= a b)) (not (= x 0)))))
@@ -830,7 +834,7 @@ of rule lemma. If a proof-term is not closed, it is open.
 
 The main propositional inference engine in Z3 is based on a DPLL(T) architecture.
 The DPLL(T) proof search method lends itself naturally to producing resolution style proofs.
-Systems, such as zChaff, and a version of MiniSAT, produce proof logs based on logging the
+Systems, such as zChaff and a version of MiniSAT, produce proof logs based on logging the
 unit propagation steps as well as the conflict resolution steps. The resulting log suffices to produce a
 propositional resolution proof.
 
@@ -872,8 +876,8 @@ For example, $\mbox{\emph{rewrite}}(x + x = 2 x)$ is a proof for $x + x = 2x$.
 Notice that Z3 does not axiomatize the legal rewrites.
 Instead, to check the rewrite steps, one must rely on a
 proof checker to be able to apply similar inferences for the set of built-in theories.
-Thus, like veriT, Z3 proofs are coarse-grained and also fall into the ``proof trace''
-category.
+Thus, Z3 proofs are coarse-grained and also fall into the ``proof trace''
+category, similarly to veriT.
 
 Since Z3 proofs are terms, they can be traversed using the Z3 API.
 Proofs can also be output in the SMT-LIB 2.0 language. A sample proof
@@ -897,10 +901,12 @@ Figure~\ref{fig:proofz3}.
 (let ((@x70 (trans (monotonicity (and-elim @x61 $x33) (= ?x57 (+ a ?x49 0.0)))
                    (rewrite (= (+ a ?x49 0.0) ?x50)) (= ?x57 ?x50))))
 (let ((@x74 (mp (and-elim @x61 $x56) (monotonicity @x70 (= $x56 $x71)) $x71)))
-(let ((@x121 (monotonicity (symm ((_ th-lemma arith eq-propagate 1 1) @x74 @x62 (= a b)) (= b a))
+(let ((@x121 (monotonicity (symm ((_ th-lemma arith eq-propagate 1 1) @x74 @x62 (= a b))
+                                 (= b a))
                            (= $x82 (q a)))))
 (let (($x38 (q a)) ($x96 (or (not $x38) $x82)) ($x97 (not $x96)))
-(let ((@x115 (monotonicity (symm ((_ th-lemma arith eq-propagate 1 1) @x74 @x62 (= a b)) (= b a))
+(let ((@x115 (monotonicity (symm ((_ th-lemma arith eq-propagate 1 1) @x74 @x62 (= a b))
+                                 (= b a))
                            (= ?x35 ?x34))))
 (let (($x100 (or $x37 $x97)))
 (let ((@x102 (monotonicity (rewrite (= (and $x38 (not $x82)) $x97))
@@ -910,8 +916,10 @@ Figure~\ref{fig:proofz3}.
 (let (($x91 (or $x37 $x88)))
 (let ((@x81 (trans (monotonicity (and-elim @x61 $x33) (= (+ b x) (+ b 0.0)))
                    (rewrite (= (+ b 0.0) b)) (= (+ b x) b))))
-(let ((@x87 (monotonicity (monotonicity @x81 (= (q (+ b x)) $x82)) (= (not (q (+ b x))) $x85))))
-(let ((@x93 (monotonicity (monotonicity @x87 (= (and $x38 (not (q (+ b x)))) $x88)) (= $x43 $x91))))
+(let ((@x87 (monotonicity (monotonicity @x81 (= (q (+ b x)) $x82)) (= (not (q (+ b x)))
+                                                                      $x85))))
+(let ((@x93 (monotonicity (monotonicity @x87 (= (and $x38 (not (q (+ b x)))) $x88))
+                          (= $x43 $x91))))
 (let ((@x103 (mp (mp (and-elim @x61 $x43) @x93 $x91) @x102 $x100)))
 (let ((@x119 (unit-resolution (def-axiom (or $x96 $x38))
                               (unit-resolution @x103 (symm @x115 $x36) $x97) $x38)))
@@ -1010,7 +1018,7 @@ distribute universal quantifiers over disjunctions when the left
 theorem forall_or_distributel {A : Type} (p : Bool) (q : A -> Bool)
            : (forall x, q x \/ p) = ((forall x, q x) \/ p)
 theorem forall_or_distributer {A : Type} (p : Bool) (q : A -> Bool)
-           : (forall x, p \/ q x) = (p ∨ forall x, q x)
+           : (forall x, p \/ q x) = (p \/ forall x, q x)
 \end{verbatim}
 }
 
@@ -1191,6 +1199,16 @@ theories.
 %version
 Producing a proof in SMT may thus, in some cases, require certificates from
 those external reasoners as well.
+
+Producing short proofs is an active research area, not only relevant in the
+context of SMT solving.  Since SMT proofs often contain an important part of
+Boolean reasoning, the efforts for improving SMT proofs mainly target the
+propositional part of the proofs.  Besides trivial post-processing methods like
+pruning irrelevant proof steps, some advanced techniques provide significant
+proof compression
+ratios~\cite{Amjad07,Sinz,RP08,CottonSplit,RedRec,RP11,B28,B38}.  The standalone
+tool Skeptic~\cite{B44} is dedicated to post-processing proofs from SAT and SMT
+solvers, and implements many of these techniques.
 
 An important challenge for the SMT community is to provide a proof format which
 is sufficiently flexible to accommodate all needs, sufficiently compact to be
